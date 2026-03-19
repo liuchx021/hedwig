@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: hedwig
+  jackson:
+    time-zone: ${TZ:Asia/Shanghai}
+  datasource:
+    url: ${DB_URL:jdbc:h2:file:${APP_DATA_DIR:./data}/hedwig;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE}
+    driver-class-name: ${DB_DRIVER_CLASS_NAME:org.h2.Driver}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+  h2:
+    console:
+      enabled: false
+  jpa:
+    database-platform: ${JPA_DIALECT:org.hibernate.dialect.H2Dialect}
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${DDL_AUTO:update}
+    show-sql: ${SHOW_SQL:false}
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: ${JWT_SECRET:change-this-jwt-secret-before-production-use-please}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+nightscout:
+  enabled: ${NIGHTSCOUT_ENABLED:false}
+  url: ${NIGHTSCOUT_URL:}
+  api-secret: ${NIGHTSCOUT_API_SECRET:}
+
+polling:
+  interval-ms: ${POLLING_INTERVAL_MS:300000}
+  early-probe-start-sec: ${POLLING_EARLY_PROBE_START_SEC:25}
+  core-radius-sec: ${POLLING_CORE_RADIUS_SEC:5}
+  late-end-sec: ${POLLING_LATE_END_SEC:30}
+  early-interval-sec: ${POLLING_EARLY_INTERVAL_SEC:8}
+  core-interval-sec: ${POLLING_CORE_INTERVAL_SEC:4}
+  late-interval-sec: ${POLLING_LATE_INTERVAL_SEC:6}
+  max-backoff-sec: ${POLLING_MAX_BACKOFF_SEC:60}
+  degraded-timeout-count: ${POLLING_DEGRADED_TIMEOUT_COUNT:2}
+  disconnected-timeout-count: ${POLLING_DISCONNECTED_TIMEOUT_COUNT:5}
+
+server:
+  address: ${SERVER_ADDRESS:0.0.0.0}
+  port: ${SERVER_PORT:3000}
