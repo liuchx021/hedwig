@@ -6,6 +6,7 @@ import com.blueship581.hedwig.domain.enums.TokenStatus;
 import com.blueship581.hedwig.domain.repository.MonitoredSubjectRepository;
 import com.blueship581.hedwig.domain.repository.VendorConnectionRepository;
 import com.blueship581.hedwig.vendor.client.OttaiClient;
+import com.blueship581.hedwig.vendor.client.SiSensingClient;
 import com.blueship581.hedwig.vendor.client.VendorClient;
 import com.blueship581.hedwig.vendor.client.VendorClientFactory;
 import com.blueship581.hedwig.vendor.model.VendorGlucoseData;
@@ -107,6 +108,8 @@ public class GlucosePollingScheduler {
 
         if (client instanceof OttaiClient ottaiClient) {
             pollViaRelatives(ottaiClient, connection, subjects);
+        } else if (client instanceof SiSensingClient siSensingClient) {
+            pollViaFollowList(siSensingClient, connection, subjects);
         } else {
             pollPerSubject(connection, subjects);
         }
@@ -157,6 +160,55 @@ public class GlucosePollingScheduler {
 
         } catch (Exception e) {
             log.error("Failed to poll via relatives for connection {}: {}",
+                    connection.getId(), e.getMessage());
+            pollingState.onError(connection.getId());
+        }
+    }
+
+    /**
+     * SiSensing path: one lightweight /follow/list call returns realtime glucose
+     * for ALL subjects via followedDeviceGlucoseDataPO.
+     */
+    private void pollViaFollowList(SiSensingClient siSensingClient,
+                                   VendorConnection connection,
+                                   List<MonitoredSubject> subjects) {
+        try {
+            Map<String, VendorGlucoseData> realtimeData =
+                    siSensingClient.getRealtimeFromFollowList(connection.getAccessToken());
+
+            boolean hasNew = false;
+            Instant latestReceiveTime = null;
+
+            for (MonitoredSubject subject : subjects) {
+                VendorGlucoseData data = realtimeData.get(subject.getVendorSubjectId());
+                if (data == null) {
+                    continue;
+                }
+                try {
+                    if (glucoseService.saveIfNewReading(subject.getId(), data)) {
+                        hasNew = true;
+                        log.info("New glucose via follow list: subject={}, glucose={}, time={}",
+                                subject.getDisplayName(), data.getGlucoseMmol(),
+                                data.getReadingTime());
+                        if (latestReceiveTime == null
+                                || data.getReadingTime().isAfter(latestReceiveTime)) {
+                            latestReceiveTime = data.getReadingTime();
+                        }
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to save glucose for subject {}: {}",
+                            subject.getId(), e.getMessage());
+                }
+            }
+
+            if (hasNew && latestReceiveTime != null) {
+                pollingState.onDataReceived(connection.getId(), latestReceiveTime);
+                connection.setLastSyncedAt(Instant.now());
+                connectionRepository.save(connection);
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to poll via follow list for connection {}: {}",
                     connection.getId(), e.getMessage());
             pollingState.onError(connection.getId());
         }

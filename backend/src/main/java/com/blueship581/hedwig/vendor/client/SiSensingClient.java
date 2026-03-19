@@ -11,10 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Client for the SiSensing (硅基仿生) CGM vendor API.
@@ -213,6 +210,98 @@ public class SiSensingClient implements VendorClient {
             throw apiError("获取监测对象列表", e);
         } catch (Exception e) {
             throw new VendorException("获取硅基轻享监测对象列表失败", e);
+        }
+    }
+
+    /**
+     * Lightweight realtime fetch: one GET to /follow/list returns latest glucose
+     * for ALL monitored subjects via followedDeviceGlucoseDataPO.
+     *
+     * @return map of followId (subjectId) -> VendorGlucoseData
+     */
+    public Map<String, VendorGlucoseData> getRealtimeFromFollowList(String accessToken) {
+        log.debug("[SiSensing] getRealtimeFromFollowList");
+        try {
+            JsonNode response = webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/lite-sense-app/follow/list")
+                            .queryParam("pageNum", "1")
+                            .queryParam("pageSize", "9999")
+                            .queryParam("status", "3")
+                            .build())
+                    .headers(h -> buildHeaders(h, accessToken))
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+
+            if (response == null || isFailureResponse(response)) {
+                throw new VendorException("硅基轻享接口返回异常：获取实时血糖数据");
+            }
+
+            JsonNode payload = extractResponseData(response);
+            JsonNode records = payload == null ? null : payload.get("records");
+            if (records == null || !records.isArray()) {
+                return Collections.emptyMap();
+            }
+
+            Map<String, VendorGlucoseData> result = new HashMap<>();
+            for (JsonNode record : records) {
+                String followId = record.has("id") ? record.get("id").asText() : null;
+                if (followId == null) {
+                    continue;
+                }
+
+                JsonNode glucoseData = record.get("followedDeviceGlucoseDataPO");
+                if (glucoseData == null || glucoseData.isNull()) {
+                    continue;
+                }
+
+                if (!glucoseData.has("latestGlucoseValue")
+                        || glucoseData.get("latestGlucoseValue").isNull()) {
+                    continue;
+                }
+
+                double glucose = glucoseData.get("latestGlucoseValue").asDouble();
+
+                // Extract timestamp: try common field names
+                Instant readingTime = null;
+                for (String field : List.of("latestGlucoseTime", "monitorTime", "updateTime", "createTime")) {
+                    if (glucoseData.has(field) && !glucoseData.get(field).isNull()) {
+                        long ts = glucoseData.get(field).asLong();
+                        if (ts > 0) {
+                            readingTime = Instant.ofEpochMilli(ts);
+                            break;
+                        }
+                    }
+                }
+                if (readingTime == null) {
+                    continue; // no timestamp = unusable
+                }
+
+                // Extract trend if available
+                int trendRaw = 0;
+                for (String field : List.of("trend", "s", "arrowType")) {
+                    if (glucoseData.has(field) && !glucoseData.get(field).isNull()) {
+                        trendRaw = glucoseData.get(field).asInt(0);
+                        break;
+                    }
+                }
+
+                result.put(followId, VendorGlucoseData.builder()
+                        .glucoseMmol(glucose)
+                        .readingTime(readingTime)
+                        .trendDirection(mapSiSensingTrend(trendRaw))
+                        .build());
+            }
+            log.debug("[SiSensing] getRealtimeFromFollowList returned {} subjects", result.size());
+            return result;
+
+        } catch (VendorException e) {
+            throw e;
+        } catch (WebClientResponseException e) {
+            throw apiError("获取实时血糖数据", e);
+        } catch (Exception e) {
+            throw new VendorException("获取硅基轻享实时血糖数据失败", e);
         }
     }
 
