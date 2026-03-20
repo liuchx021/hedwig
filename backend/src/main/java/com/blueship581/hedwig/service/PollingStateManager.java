@@ -159,8 +159,14 @@ public class PollingStateManager {
 
     /**
      * Poll succeeded but returned no new data (same reading as before).
-     * Keeps the connection healthy and advances the window so we don't
-     * falsely degrade into TIMEOUT_BACKOFF / DISCONNECTED.
+     * Keeps the connection healthy so we don't falsely degrade into DISCONNECTED.
+     *
+     * <p>IMPORTANT: we do NOT advance nextExpectedTime here. The data is expected
+     * to arrive imminently (sensor just hasn't uploaded yet). Advancing the window
+     * to now+5min would cause the scheduler to enter IDLE and miss the data for
+     * minutes. Instead, we let shouldPollNow stay in LATE_CHASE / TIMEOUT_BACKOFF
+     * at a reasonable rate (~16s) until the real data arrives and onDataReceived
+     * properly advances the window.
      */
     public void onPollSuccessNoNewData(Long connectionId) {
         PollingState s = states.computeIfAbsent(connectionId, id -> new PollingState());
@@ -169,13 +175,6 @@ public class PollingStateManager {
             log.info("[PollingState] connection={} restored to HEALTHY (poll OK, no new data)", connectionId);
         }
         s.health = ConnectionHealth.HEALTHY;
-
-        // Advance the window forward so we don't keep polling in the past
-        if (s.nextExpectedTime != null && Instant.now().isAfter(s.nextExpectedTime)) {
-            s.nextExpectedTime = Instant.now().plusMillis(dataIntervalMs);
-            s.currentPhase = Phase.IDLE;
-            log.debug("[PollingState] connection={} advanced nextExpected={}", connectionId, s.nextExpectedTime);
-        }
     }
 
     /**
