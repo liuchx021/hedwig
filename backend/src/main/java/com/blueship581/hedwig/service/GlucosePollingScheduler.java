@@ -52,8 +52,18 @@ public class GlucosePollingScheduler {
         List<VendorConnection> activeConnections = connectionRepository
                 .findByTokenStatusNot(TokenStatus.EXPIRED);
 
+        if (Instant.now().getEpochSecond() % 60 < 2) {
+            log.info("[tick] activeConnections={}", activeConnections.size());
+        }
+
         for (VendorConnection connection : activeConnections) {
             if (!pollingState.shouldPollNow(connection.getId())) {
+                if (Instant.now().getEpochSecond() % 30 < 2) {
+                    log.info("[tick] conn={} skipped, phase={}, health={}",
+                            connection.getId(),
+                            pollingState.getCurrentPhase(connection.getId()),
+                            pollingState.getHealth(connection.getId()));
+                }
                 continue;
             }
 
@@ -76,7 +86,7 @@ public class GlucosePollingScheduler {
     // Slow maintenance — 10 min: token check + subject sync
     // ════════════════════════════════════════════════════════════════════════
 
-    @Scheduled(fixedDelay = 600_000)
+    @Scheduled(initialDelay = 0, fixedDelay = 600_000)
     public void maintenance() {
         tokenExpiryMonitorService.checkAll();
 
@@ -156,6 +166,8 @@ public class GlucosePollingScheduler {
                 pollingState.onDataReceived(connection.getId(), latestReceiveTime);
                 connection.setLastSyncedAt(Instant.now());
                 connectionRepository.save(connection);
+            } else {
+                pollingState.onPollSuccessNoNewData(connection.getId());
             }
 
         } catch (Exception e) {
@@ -182,8 +194,14 @@ public class GlucosePollingScheduler {
             for (MonitoredSubject subject : subjects) {
                 VendorGlucoseData data = realtimeData.get(subject.getVendorSubjectId());
                 if (data == null) {
+                    log.info("[SiSensing poll] subject={} not found in follow list response",
+                            subject.getDisplayName());
                     continue;
                 }
+                log.info("[SiSensing poll] subject={}, glucose={}, time={}, phase={}, health={}",
+                        subject.getDisplayName(), data.getGlucoseMmol(), data.getReadingTime(),
+                        pollingState.getCurrentPhase(connection.getId()),
+                        pollingState.getHealth(connection.getId()));
                 try {
                     if (glucoseService.saveIfNewReading(subject.getId(), data)) {
                         hasNew = true;
@@ -205,6 +223,8 @@ public class GlucosePollingScheduler {
                 pollingState.onDataReceived(connection.getId(), latestReceiveTime);
                 connection.setLastSyncedAt(Instant.now());
                 connectionRepository.save(connection);
+            } else {
+                pollingState.onPollSuccessNoNewData(connection.getId());
             }
 
         } catch (Exception e) {

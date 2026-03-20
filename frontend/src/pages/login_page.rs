@@ -42,8 +42,13 @@ pub fn LoginPage() -> impl IntoView {
     view! {
         <div class="auth-page">
             <div class="auth-card">
+                <div class="auth-brand">
+                    <div class="auth-brand-icon">{"\u{1F989}"}</div>
+                    <div class="auth-brand-name">"Hedwig"</div>
+                    <div class="auth-brand-desc">"CGM \u{00b7} 血糖数据网关"</div>
+                </div>
                 <h1>"欢迎回来"</h1>
-                <p class="subtitle">"登录血糖网关管理系统"</p>
+                <p class="subtitle">"登录 Hedwig 管理系统"</p>
 
                 <form on:submit=on_submit>
                     <div class="form-group">

@@ -57,7 +57,7 @@ pub fn SettingsPage() -> impl IntoView {
 
             <div class="card settings-section">
                 <h2>"手动同步到 Nightscout"</h2>
-                <p style="color:#64748b;font-size:13px;margin-bottom:16px">
+                <p style="color:#7a8599;font-size:13px;margin-bottom:16px">
                     "手动触发将待推送的血糖数据同步至 Nightscout（需在后端配置 Nightscout 地址和 API 密钥）"
                 </p>
 

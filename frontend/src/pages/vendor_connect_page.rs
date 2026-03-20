@@ -138,7 +138,7 @@ pub fn VendorConnectPage() -> impl IntoView {
         <div class="page-container connect-shell">
             <section class="connect-hero">
                 <div>
-                    <span class="connect-eyebrow">"Device Onboarding"</span>
+                    <span class="connect-eyebrow">{"\u{1F989}"}" Device Onboarding"</span>
                     <h1 class="section-title">"连接血糖监测设备"</h1>
                     <p class="section-subtitle">
                         "按厂商选择最合适的鉴权方式，系统会自动完成令牌校验、监测对象同步与后续拉取准备。"

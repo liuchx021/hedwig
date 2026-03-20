@@ -19,7 +19,7 @@ const GLUCOSE_MAX: f64 = 20.0;
 pub fn GlucoseChart(readings: Vec<GlucoseReading>) -> impl IntoView {
     if readings.is_empty() {
         return view! {
-            <div class="chart-container" style="text-align:center;color:#94a3b8;padding:40px">
+            <div class="chart-container" style="text-align:center;color:#7a8599;padding:40px">
                 "暂无数据"
             </div>
         }
@@ -88,11 +88,11 @@ pub fn GlucoseChart(readings: Vec<GlucoseReading>) -> impl IntoView {
         .zip(readings.iter())
         .filter_map(|((_, x, y), r)| {
             let color = if r.glucose_mmol < GLUCOSE_LOW {
-                "#eab308"
+                "#e0a84b"
             } else if r.glucose_mmol > GLUCOSE_HIGH {
-                "#dc2626"
+                "#e05c5c"
             } else {
-                "#16a34a"
+                "#4ecdc4"
             };
             Some((*x, *y, r.glucose_mmol, color))
         })
@@ -111,15 +111,15 @@ pub fn GlucoseChart(readings: Vec<GlucoseReading>) -> impl IntoView {
                     y=y_high
                     width=inner_w
                     height=band_h
-                    fill="#dcfce7"
-                    fill-opacity="0.6"
+                    fill="rgba(78,205,196,0.08)"
+                    fill-opacity="1"
                 />
 
                 // Grid lines + Y labels
                 {y_labels.iter().map(|(val, y)| {
                     view! {
-                        <line x1=PAD_L x2=CHART_W-PAD_R y1=*y y2=*y stroke="#e2e8f0" stroke-width="1"/>
-                        <text x=PAD_L-6.0 y=*y+4.0 text-anchor="end" font-size="11" fill="#94a3b8">
+                        <line x1=PAD_L x2=CHART_W-PAD_R y1=*y y2=*y stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+                        <text x=PAD_L-6.0 y=*y+4.0 text-anchor="end" font-size="11" fill="#7a8599">
                             {format!("{:.0}", val)}
                         </text>
                     }
@@ -129,19 +129,19 @@ pub fn GlucoseChart(readings: Vec<GlucoseReading>) -> impl IntoView {
                 <line
                     x1=PAD_L x2=CHART_W-PAD_R
                     y1=y_high y2=y_high
-                    stroke="#dc2626" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"
+                    stroke="#e05c5c" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"
                 />
                 <line
                     x1=PAD_L x2=CHART_W-PAD_R
                     y1=y_low y2=y_low
-                    stroke="#eab308" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"
+                    stroke="#e0a84b" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"
                 />
 
                 // Data polyline
                 <polyline
                     points=polyline_pts
                     fill="none"
-                    stroke="#2563eb"
+                    stroke="#c8a44e"
                     stroke-width="2"
                     stroke-linejoin="round"
                     stroke-linecap="round"
@@ -150,17 +150,17 @@ pub fn GlucoseChart(readings: Vec<GlucoseReading>) -> impl IntoView {
                 // Data point circles
                 {circles.iter().map(|(x, y, _val, color)| {
                     view! {
-                        <circle cx=*x cy=*y r="3.5" fill=*color stroke="white" stroke-width="1.5"/>
+                        <circle cx=*x cy=*y r="3.5" fill=*color stroke="#0c1117" stroke-width="1.5"/>
                     }
                 }).collect::<Vec<_>>()}
 
                 // Axes
-                <line x1=PAD_L x2=PAD_L y1=PAD_T y2=CHART_H-PAD_B stroke="#cbd5e1" stroke-width="1"/>
-                <line x1=PAD_L x2=CHART_W-PAD_R y1=CHART_H-PAD_B y2=CHART_H-PAD_B stroke="#cbd5e1" stroke-width="1"/>
+                <line x1=PAD_L x2=PAD_L y1=PAD_T y2=CHART_H-PAD_B stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                <line x1=PAD_L x2=CHART_W-PAD_R y1=CHART_H-PAD_B y2=CHART_H-PAD_B stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
 
                 // Legend
-                <rect x=PAD_L y=CHART_H-4.0 width="12" height="6" fill="#dcfce7" stroke="#16a34a" stroke-width="0.5"/>
-                <text x=PAD_L+16.0 y=CHART_H+2.0 font-size="10" fill="#64748b">"目标范围 3.9–10.0 mmol/L"</text>
+                <rect x=PAD_L y=CHART_H-4.0 width="12" height="6" fill="rgba(78,205,196,0.15)" stroke="#4ecdc4" stroke-width="0.5"/>
+                <text x=PAD_L+16.0 y=CHART_H+2.0 font-size="10" fill="#7a8599">"目标范围 3.9–10.0 mmol/L"</text>
             </svg>
         </div>
     }

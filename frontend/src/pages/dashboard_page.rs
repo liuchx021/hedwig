@@ -119,8 +119,9 @@ pub fn DashboardPage() -> impl IntoView {
                 let conns = connections.get();
                 if conns.is_empty() {
                     view! {
-                        <div class="card" style="text-align:center;padding:48px">
-                            <p style="color:#64748b;font-size:16px;margin-bottom:16px">"还没有连接任何设备"</p>
+                        <div class="card empty-state">
+                            <div class="empty-state-icon">{"\u{1F989}"}</div>
+                            <p class="empty-state-text">"还没有连接任何设备"</p>
                             <A href="/connect">
                                 <button class="btn-primary" style="padding:10px 24px">"添加第一个设备"</button>
                             </A>

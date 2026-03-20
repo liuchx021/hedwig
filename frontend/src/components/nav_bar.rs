@@ -17,16 +17,16 @@ pub fn NavBar() -> impl IntoView {
     view! {
         <nav class="navbar">
             <div class="navbar-brand">
-                <span style="font-size:22px">{"\u{2665}"}</span>
-                <span>"血糖数据网关"</span>
-                <span style="font-size:13px;font-weight:400;color:#64748b;margin-left:4px">"CGM 数据同步"</span>
+                <div class="navbar-brand-icon">{"\u{1F989}"}</div>
+                <span class="navbar-brand-text">"Hedwig"</span>
+                <span class="navbar-brand-sub">"CGM Gateway"</span>
             </div>
             <div class="navbar-links">
                 <A href="/" class="nav-link" active_class="active">"仪表盘"</A>
                 <A href="/connect" class="nav-link" active_class="active">"连接设备"</A>
                 <A href="/settings" class="nav-link" active_class="active">"设置"</A>
                 <Show when=move || auth_for_show.is_authenticated()>
-                    <span style="margin-left:8px;color:#64748b;font-size:13px">
+                    <span style="margin-left:8px;color:#7a8599;font-size:13px">
                         {move || auth_for_name.username.get().unwrap_or_default()}
                     </span>
                     <button

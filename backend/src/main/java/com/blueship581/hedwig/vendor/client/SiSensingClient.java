@@ -255,6 +255,7 @@ public class SiSensingClient implements VendorClient {
                 if (glucoseData == null || glucoseData.isNull()) {
                     continue;
                 }
+                log.debug("[SiSensing] followId={}, glucoseDataPO={}", followId, glucoseData);
 
                 if (!glucoseData.has("latestGlucoseValue")
                         || glucoseData.get("latestGlucoseValue").isNull()) {

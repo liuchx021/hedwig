@@ -6,7 +6,7 @@ use leptos::*;
 pub fn GlucoseTable(readings: Vec<GlucoseReading>) -> impl IntoView {
     if readings.is_empty() {
         return view! {
-            <div style="text-align:center;color:#94a3b8;padding:24px">"暂无血糖数据"</div>
+            <div style="text-align:center;color:#7a8599;padding:24px">"暂无血糖数据"</div>
         }
         .into_view();
     }

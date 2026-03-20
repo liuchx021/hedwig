@@ -47,7 +47,7 @@ fn AppShell() -> impl IntoView {
                 <Route path="/settings" view=SettingsPage />
                 <Route path="/*any" view=|| view! {
                     <div class="page-container" style="text-align:center;padding-top:60px">
-                        <h2 style="color:#64748b">"404 — 页面不存在"</h2>
+                        <h2 style="color:#7a8599">"404 — 页面不存在"</h2>
                         <br/>
                         <A href="/">"返回首页"</A>
                     </div>

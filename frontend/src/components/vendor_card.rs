@@ -50,7 +50,7 @@ pub fn VendorCard(connection: VendorConnection, on_delete: Callback<String>) -> 
             </div>
             {if let Some(ref remaining) = sensor_remaining {
                 let is_expired = remaining == "已过期";
-                let style = if is_expired { "color:#ef4444" } else { "color:#059669" };
+                let style = if is_expired { "color:#e05c5c" } else { "color:#4ecdc4" };
                 view! {
                     <div class="vendor-meta">
                         <span>"传感器剩余有效期："</span>

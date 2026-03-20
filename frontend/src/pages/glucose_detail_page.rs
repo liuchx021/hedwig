@@ -131,7 +131,7 @@ pub fn GlucoseDetailPage() -> impl IntoView {
     view! {
         <div class="page-container">
             <div style="margin-bottom:20px">
-                <A href="/"><span style="color:#64748b;font-size:14px">"← 返回仪表盘"</span></A>
+                <A href="/"><span style="color:#7a8599;font-size:14px">"← 返回仪表盘"</span></A>
             </div>
 
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
@@ -202,24 +202,24 @@ pub fn GlucoseDetailPage() -> impl IntoView {
                         // Summary stats
                         <div style="display:flex;gap:16px;flex-wrap:wrap">
                             <div class="card" style="flex:1;min-width:120px;text-align:center">
-                                <div style="font-size:11px;color:#64748b;margin-bottom:4px">"读数条数"</div>
-                                <div style="font-size:24px;font-weight:700;color:#2563eb">{count}</div>
+                                <div class="stat-label">"读数条数"</div>
+                                <div class="stat-value" style="color:#c8a44e">{count}</div>
                             </div>
                             {avg.map(|a| view! {
                                 <div class="card" style="flex:1;min-width:120px;text-align:center">
-                                    <div style="font-size:11px;color:#64748b;margin-bottom:4px">"平均血糖值"</div>
-                                    <div style="font-size:24px;font-weight:700;color:#16a34a">
+                                    <div class="stat-label">"平均血糖值"</div>
+                                    <div class="stat-value" style="color:#4ecdc4">
                                         {format!("{:.1}", a)}
-                                        <span style="font-size:13px;font-weight:400;color:#64748b">" mmol/L"</span>
+                                        <span class="stat-unit">" mmol/L"</span>
                                     </div>
                                 </div>
                             })}
                             {latest_val.map(|(val, css)| view! {
                                 <div class="card" style="flex:1;min-width:120px;text-align:center">
-                                    <div style="font-size:11px;color:#64748b;margin-bottom:4px">"最新血糖值"</div>
-                                    <div style="font-size:24px;font-weight:700" class=css>
+                                    <div class="stat-label">"最新血糖值"</div>
+                                    <div class="stat-value" class=css>
                                         {format!("{:.1}", val)}
-                                        <span style="font-size:13px;font-weight:400;color:#64748b">" mmol/L"</span>
+                                        <span class="stat-unit">" mmol/L"</span>
                                     </div>
                                 </div>
                             })}
@@ -230,9 +230,9 @@ pub fn GlucoseDetailPage() -> impl IntoView {
 
                         // Table
                         <div class="card" style="padding:0;overflow:hidden">
-                            <div style="padding:16px 16px 12px;border-bottom:1px solid #e2e8f0">
+                            <div style="padding:16px 16px 12px;border-bottom:1px solid rgba(255,255,255,0.06)">
                                 <strong>"数据明细"</strong>
-                                <span style="color:#64748b;font-size:13px;margin-left:8px">
+                                <span style="color:#7a8599;font-size:13px;margin-left:8px">
                                     {format!("共 {} 条记录", count)}
                                 </span>
                             </div>

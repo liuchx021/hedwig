@@ -158,6 +158,27 @@ public class PollingStateManager {
     }
 
     /**
+     * Poll succeeded but returned no new data (same reading as before).
+     * Keeps the connection healthy and advances the window so we don't
+     * falsely degrade into TIMEOUT_BACKOFF / DISCONNECTED.
+     */
+    public void onPollSuccessNoNewData(Long connectionId) {
+        PollingState s = states.computeIfAbsent(connectionId, id -> new PollingState());
+        s.consecutiveTimeouts = 0;
+        if (s.health != ConnectionHealth.HEALTHY) {
+            log.info("[PollingState] connection={} restored to HEALTHY (poll OK, no new data)", connectionId);
+        }
+        s.health = ConnectionHealth.HEALTHY;
+
+        // Advance the window forward so we don't keep polling in the past
+        if (s.nextExpectedTime != null && Instant.now().isAfter(s.nextExpectedTime)) {
+            s.nextExpectedTime = Instant.now().plusMillis(dataIntervalMs);
+            s.currentPhase = Phase.IDLE;
+            log.debug("[PollingState] connection={} advanced nextExpected={}", connectionId, s.nextExpectedTime);
+        }
+    }
+
+    /**
      * A poll threw an exception.
      */
     public void onError(Long connectionId) {
