@@ -1,10 +1,11 @@
 package com.blueship581.hedwig.vendor.client;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.blueship581.hedwig.domain.enums.TrendDirection;
 import com.blueship581.hedwig.exception.VendorException;
 import com.blueship581.hedwig.vendor.model.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,11 +28,9 @@ public class SiSensingClient implements VendorClient {
     private static final String BASE_URL = "https://api.sisensing.com";
 
     private final WebClient webClient;
-    private final ObjectMapper objectMapper;
 
-    public SiSensingClient(WebClient.Builder webClientBuilder, ObjectMapper objectMapper) {
+    public SiSensingClient(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -41,19 +40,20 @@ public class SiSensingClient implements VendorClient {
             return VendorTokenInfo.builder().valid(false).build();
         }
         try {
-            JsonNode response = webClient.get()
+            String body = webClient.get()
                     .uri("/auth/token/info")
                     .headers(h -> buildHeaders(h, normalizedToken))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             if (response == null || isFailureResponse(response)) {
                 return VendorTokenInfo.builder().valid(false).build();
             }
 
-            JsonNode tokenInfo = extractResponseData(response);
-            if (tokenInfo == null || tokenInfo.isNull()) {
+            JSONObject tokenInfo = extractResponseData(response);
+            if (tokenInfo == null) {
                 return VendorTokenInfo.builder().valid(false).build();
             }
 
@@ -64,9 +64,9 @@ public class SiSensingClient implements VendorClient {
 
             String userId = firstText(tokenInfo, "userId", "id");
             Instant expiresAt = null;
-            JsonNode expireTime = tokenInfo.get("expireTime");
-            if (expireTime != null && !expireTime.isNull()) {
-                long expireMs = Long.parseLong(expireTime.asText());
+            String expireTimeStr = tokenInfo.getString("expireTime");
+            if (expireTimeStr != null && !expireTimeStr.isBlank()) {
+                long expireMs = Long.parseLong(expireTimeStr);
                 expiresAt = Instant.ofEpochMilli(expireMs);
             }
 
@@ -100,7 +100,7 @@ public class SiSensingClient implements VendorClient {
         }
 
         try {
-            JsonNode response = webClient.post()
+            String body = webClient.post()
                     .uri("/lite-sense-app/user/password/login")
                     .headers(this::buildCommonHeaders)
                     .bodyValue(Map.of(
@@ -108,15 +108,16 @@ public class SiSensingClient implements VendorClient {
                             "password", password
                     ))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             if (response == null) {
                 throw new VendorException("硅基轻享登录接口返回为空");
             }
 
             if (isFailureResponse(response)) {
-                String detail = extractErrorDetail(response.toString());
+                String detail = extractErrorDetail(response.toJSONString());
                 if (detail == null || detail.isBlank()) {
                     throw new VendorException("硅基轻享账号密码登录失败");
                 }
@@ -146,7 +147,7 @@ public class SiSensingClient implements VendorClient {
     @Override
     public List<VendorSubject> getMonitoredSubjects(String accessToken, String vendorUserId) {
         try {
-            JsonNode response = webClient.get()
+            String body = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/lite-sense-app/follow/list")
                             .queryParam("pageNum", "1")
@@ -155,43 +156,47 @@ public class SiSensingClient implements VendorClient {
                             .build())
                     .headers(h -> buildHeaders(h, accessToken))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             if (response == null) {
                 throw new VendorException("硅基轻享接口返回为空：获取监测对象列表");
             }
 
             if (isFailureResponse(response)) {
-                String detail = extractErrorDetail(response.toString());
+                String detail = extractErrorDetail(response.toJSONString());
                 if (detail == null || detail.isBlank()) {
                     throw new VendorException("硅基轻享接口返回异常：获取监测对象列表");
                 }
                 throw new VendorException("硅基轻享接口返回异常：获取监测对象列表：" + detail);
             }
 
-            JsonNode payload = extractResponseData(response);
-            JsonNode records = payload == null ? null : payload.get("records");
-            if (records == null || !records.isArray()) {
+            JSONObject payload = extractResponseData(response);
+            JSONArray records = payload == null ? null : payload.getJSONArray("records");
+            if (records == null || records.isEmpty()) {
                 return Collections.emptyList();
             }
 
             List<VendorSubject> subjects = new ArrayList<>();
-            for (JsonNode record : records) {
-                String followId = record.has("id") ? record.get("id").asText() : null;
+            for (int i = 0; i < records.size(); i++) {
+                JSONObject record = records.getJSONObject(i);
+                String followId = record.containsKey("id") ? record.getString("id") : null;
                 String displayName = null;
-                if (record.has("followedUserInfo")) {
-                    JsonNode userInfo = record.get("followedUserInfo");
-                    displayName = userInfo.has("nickName")
-                            ? userInfo.get("nickName").asText()
-                            : (userInfo.has("userName") ? userInfo.get("userName").asText() : null);
+                if (record.containsKey("followedUserInfo")) {
+                    JSONObject userInfo = record.getJSONObject("followedUserInfo");
+                    if (userInfo != null) {
+                        displayName = userInfo.containsKey("nickName")
+                                ? userInfo.getString("nickName")
+                                : (userInfo.containsKey("userName") ? userInfo.getString("userName") : null);
+                    }
                 }
 
                 Double latestGlucose = null;
-                if (record.has("followedDeviceGlucoseDataPO") && !record.get("followedDeviceGlucoseDataPO").isNull()) {
-                    JsonNode glucoseData = record.get("followedDeviceGlucoseDataPO");
-                    if (glucoseData.has("latestGlucoseValue") && !glucoseData.get("latestGlucoseValue").isNull()) {
-                        latestGlucose = glucoseData.get("latestGlucoseValue").asDouble();
+                if (record.containsKey("followedDeviceGlucoseDataPO") && record.get("followedDeviceGlucoseDataPO") != null) {
+                    JSONObject glucoseData = record.getJSONObject("followedDeviceGlucoseDataPO");
+                    if (glucoseData != null && glucoseData.containsKey("latestGlucoseValue") && glucoseData.get("latestGlucoseValue") != null) {
+                        latestGlucose = glucoseData.getDoubleValue("latestGlucoseValue");
                     }
                 }
 
@@ -222,7 +227,7 @@ public class SiSensingClient implements VendorClient {
     public Map<String, VendorGlucoseData> getRealtimeFromFollowList(String accessToken) {
         log.debug("[SiSensing] getRealtimeFromFollowList");
         try {
-            JsonNode response = webClient.get()
+            String body = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/lite-sense-app/follow/list")
                             .queryParam("pageNum", "1")
@@ -231,44 +236,46 @@ public class SiSensingClient implements VendorClient {
                             .build())
                     .headers(h -> buildHeaders(h, accessToken))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             if (response == null || isFailureResponse(response)) {
                 throw new VendorException("硅基轻享接口返回异常：获取实时血糖数据");
             }
 
-            JsonNode payload = extractResponseData(response);
-            JsonNode records = payload == null ? null : payload.get("records");
-            if (records == null || !records.isArray()) {
+            JSONObject payload = extractResponseData(response);
+            JSONArray records = payload == null ? null : payload.getJSONArray("records");
+            if (records == null || records.isEmpty()) {
                 return Collections.emptyMap();
             }
 
             Map<String, VendorGlucoseData> result = new HashMap<>();
-            for (JsonNode record : records) {
-                String followId = record.has("id") ? record.get("id").asText() : null;
+            for (int i = 0; i < records.size(); i++) {
+                JSONObject record = records.getJSONObject(i);
+                String followId = record.containsKey("id") ? record.getString("id") : null;
                 if (followId == null) {
                     continue;
                 }
 
-                JsonNode glucoseData = record.get("followedDeviceGlucoseDataPO");
-                if (glucoseData == null || glucoseData.isNull()) {
+                JSONObject glucoseData = record.getJSONObject("followedDeviceGlucoseDataPO");
+                if (glucoseData == null) {
                     continue;
                 }
                 log.debug("[SiSensing] followId={}, glucoseDataPO={}", followId, glucoseData);
 
-                if (!glucoseData.has("latestGlucoseValue")
-                        || glucoseData.get("latestGlucoseValue").isNull()) {
+                if (!glucoseData.containsKey("latestGlucoseValue")
+                        || glucoseData.get("latestGlucoseValue") == null) {
                     continue;
                 }
 
-                double glucose = glucoseData.get("latestGlucoseValue").asDouble();
+                double glucose = glucoseData.getDoubleValue("latestGlucoseValue");
 
                 // Extract timestamp: try common field names
                 Instant readingTime = null;
                 for (String field : List.of("latestGlucoseTime", "monitorTime", "updateTime", "createTime")) {
-                    if (glucoseData.has(field) && !glucoseData.get(field).isNull()) {
-                        long ts = glucoseData.get(field).asLong();
+                    if (glucoseData.containsKey(field) && glucoseData.get(field) != null) {
+                        long ts = glucoseData.getLongValue(field);
                         if (ts > 0) {
                             readingTime = Instant.ofEpochMilli(ts);
                             break;
@@ -282,8 +289,8 @@ public class SiSensingClient implements VendorClient {
                 // Extract trend if available
                 int trendRaw = 0;
                 for (String field : List.of("trend", "s", "arrowType")) {
-                    if (glucoseData.has(field) && !glucoseData.get(field).isNull()) {
-                        trendRaw = glucoseData.get(field).asInt(0);
+                    if (glucoseData.containsKey(field) && glucoseData.get(field) != null) {
+                        trendRaw = glucoseData.getIntValue(field, 0);
                         break;
                     }
                 }
@@ -318,49 +325,51 @@ public class SiSensingClient implements VendorClient {
     @Override
     public List<VendorGlucoseData> getHistoricalGlucose(String accessToken, String vendorUserId, VendorSubject subject) {
         try {
-            JsonNode response = webClient.get()
+            String body = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/lite-sense-app/follow/glucose")
                             .queryParam("followId", subject.getSubjectId())
                             .build())
                     .headers(h -> buildHeaders(h, accessToken))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             if (response == null) {
                 throw new VendorException("硅基轻享接口返回为空：获取历史血糖数据");
             }
 
             if (isFailureResponse(response)) {
-                String detail = extractErrorDetail(response.toString());
+                String detail = extractErrorDetail(response.toJSONString());
                 if (detail == null || detail.isBlank()) {
                     throw new VendorException("硅基轻享接口返回异常：获取历史血糖数据");
                 }
                 throw new VendorException("硅基轻享接口返回异常：获取历史血糖数据：" + detail);
             }
 
-            JsonNode payload = extractResponseData(response);
-            JsonNode glucoseDataList = payload == null ? null : payload.get("glucoseDataList");
-            if (glucoseDataList == null || !glucoseDataList.isArray() || glucoseDataList.isEmpty()) {
+            JSONObject payload = extractResponseData(response);
+            JSONArray glucoseDataList = payload == null ? null : payload.getJSONArray("glucoseDataList");
+            if (glucoseDataList == null || glucoseDataList.isEmpty()) {
                 return Collections.emptyList();
             }
 
             // Take first device's data (primary device)
-            JsonNode firstDevice = glucoseDataList.get(0);
-            JsonNode glucoseInfos = firstDevice.get("glucoseInfos");
-            if (glucoseInfos == null || !glucoseInfos.isArray()) {
+            JSONObject firstDevice = glucoseDataList.getJSONObject(0);
+            JSONArray glucoseInfos = firstDevice.getJSONArray("glucoseInfos");
+            if (glucoseInfos == null || glucoseInfos.isEmpty()) {
                 return Collections.emptyList();
             }
 
             List<VendorGlucoseData> readings = new ArrayList<>();
-            for (JsonNode point : glucoseInfos) {
-                if (!point.has("effective") || !point.get("effective").asBoolean(true)) {
+            for (int i = 0; i < glucoseInfos.size(); i++) {
+                JSONObject point = glucoseInfos.getJSONObject(i);
+                if (point.containsKey("effective") && !point.getBooleanValue("effective", true)) {
                     continue;
                 }
-                double glucoseMmol = point.get("v").asDouble();
-                long timestampMs = point.get("t").asLong();
-                int trendRaw = point.has("s") ? point.get("s").asInt(0) : 0;
+                double glucoseMmol = point.getDoubleValue("v");
+                long timestampMs = point.getLongValue("t");
+                int trendRaw = point.containsKey("s") ? point.getIntValue("s", 0) : 0;
                 TrendDirection trend = mapSiSensingTrend(trendRaw);
 
                 readings.add(VendorGlucoseData.builder()
@@ -398,86 +407,95 @@ public class SiSensingClient implements VendorClient {
             return null;
         }
         try {
-            JsonNode root = objectMapper.readTree(body);
-            if (root.hasNonNull("msg")) {
-                return root.get("msg").asText();
+            JSONObject root = JSON.parseObject(body);
+            if (root.containsKey("msg") && root.getString("msg") != null) {
+                return root.getString("msg");
             }
-            if (root.hasNonNull("message")) {
-                return root.get("message").asText();
+            if (root.containsKey("message") && root.getString("message") != null) {
+                return root.getString("message");
             }
-            if (root.hasNonNull("error")) {
-                return root.get("error").asText();
+            if (root.containsKey("error") && root.getString("error") != null) {
+                return root.getString("error");
             }
         } catch (Exception ignored) {
         }
         return body.length() > 160 ? body.substring(0, 160) + "..." : body;
     }
 
-    private String extractLoginToken(JsonNode response) {
-        JsonNode data = extractResponseData(response);
-        if (data != null && data.isTextual()) {
-            return data.asText();
+    private String extractLoginToken(JSONObject response) {
+        JSONObject data = extractResponseData(response);
+        if (data == null) {
+            return firstText(response, "token", "accessToken");
         }
-        if (data != null && data.isObject()) {
-            String nested = firstText(data, "token", "accessToken", "authorization", "bearerToken");
-            if (nested != null) {
-                return nested;
-            }
+        // If data is a simple string value in the envelope
+        Object dataRaw = response.get("data");
+        if (dataRaw instanceof String) {
+            return (String) dataRaw;
+        }
+        String nested = firstText(data, "token", "accessToken", "authorization", "bearerToken");
+        if (nested != null) {
+            return nested;
         }
         return firstText(response, "token", "accessToken");
     }
 
-    private boolean isFailureResponse(JsonNode response) {
+    private boolean isFailureResponse(JSONObject response) {
         if (!isEnvelopeResponse(response)) {
             return false;
         }
 
-        JsonNode success = response.get("success");
-        if (success != null && !success.isNull()) {
-            return !success.asBoolean(false);
+        Boolean success = response.getBoolean("success");
+        if (success != null) {
+            return !success;
         }
 
-        JsonNode code = response.get("code");
-        if (code == null || code.isNull()) {
+        Object code = response.get("code");
+        if (code == null) {
             return false;
         }
 
-        if (code.isNumber()) {
-            return code.asInt() != 200;
+        if (code instanceof Number) {
+            return ((Number) code).intValue() != 200;
         }
 
-        String codeText = code.asText();
+        String codeText = code.toString();
         return !"200".equals(codeText) && !"0".equals(codeText) && !"OK".equalsIgnoreCase(codeText);
     }
 
-    private boolean isEnvelopeResponse(JsonNode response) {
+    private boolean isEnvelopeResponse(JSONObject response) {
         return response != null && (
-                response.has("success")
-                        || response.has("code")
-                        || response.has("msg")
-                        || response.has("errorData")
+                response.containsKey("success")
+                        || response.containsKey("code")
+                        || response.containsKey("msg")
+                        || response.containsKey("errorData")
         );
     }
 
-    private JsonNode extractResponseData(JsonNode response) {
-        if (response == null || response.isNull()) {
+    private JSONObject extractResponseData(JSONObject response) {
+        if (response == null) {
             return null;
         }
         if (!isEnvelopeResponse(response)) {
             return response;
         }
-        JsonNode data = response.get("data");
-        return data == null || data.isNull() ? null : data;
+        Object data = response.get("data");
+        if (data == null) {
+            return null;
+        }
+        if (data instanceof JSONObject) {
+            return (JSONObject) data;
+        }
+        return null;
     }
 
-    private String firstText(JsonNode node, String... fieldNames) {
-        if (node == null || node.isNull()) {
+    private String firstText(JSONObject node, String... fieldNames) {
+        if (node == null) {
             return null;
         }
         for (String fieldName : fieldNames) {
-            JsonNode value = node.get(fieldName);
-            if (value != null && value.isTextual() && !value.asText().isBlank()) {
-                return value.asText();
+            String value = node.getString(fieldName);
+            if (value != null && !value.isBlank()) {
+                return value;
             }
         }
         return null;

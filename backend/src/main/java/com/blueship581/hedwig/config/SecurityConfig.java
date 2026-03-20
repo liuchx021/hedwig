@@ -1,5 +1,6 @@
 package com.blueship581.hedwig.config;
 
+import com.blueship581.hedwig.exception.ErrorCode;
 import com.blueship581.hedwig.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -36,18 +37,20 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            ErrorCode ec = ErrorCode.UNAUTHORIZED;
+                            response.setStatus(ec.getHttpStatus().value());
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                            response.getWriter().write("""
-                                    {"status":401,"error":"未登录","message":"请先登录"}
-                                    """.trim());
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(
+                                    "{\"code\":%d,\"message\":\"%s\"}".formatted(ec.getCode(), ec.getMessage()));
                         })
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            ErrorCode ec = ErrorCode.ACCESS_DENIED;
+                            response.setStatus(ec.getHttpStatus().value());
                             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                            response.getWriter().write("""
-                                    {"status":403,"error":"禁止访问","message":"您没有权限访问该资源"}
-                                    """.trim());
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write(
+                                    "{\"code\":%d,\"message\":\"%s\"}".formatted(ec.getCode(), ec.getMessage()));
                         })
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

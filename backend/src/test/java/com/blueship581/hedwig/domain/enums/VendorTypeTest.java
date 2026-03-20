@@ -1,18 +1,16 @@
 package com.blueship581.hedwig.domain.enums;
 
+import com.alibaba.fastjson2.JSON;
 import com.blueship581.hedwig.dto.ConnectByTokenRequest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class VendorTypeTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
     @Test
-    void acceptsLegacySiSensingAlias() throws Exception {
-        ConnectByTokenRequest request = objectMapper.readValue("""
+    void acceptsLegacySiSensingAlias() {
+        ConnectByTokenRequest request = JSON.parseObject("""
                 {"vendorType":"SI_SENSING","accessToken":"demo-token"}
                 """, ConnectByTokenRequest.class);
 

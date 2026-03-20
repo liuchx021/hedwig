@@ -1,11 +1,12 @@
 package com.blueship581.hedwig.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.blueship581.hedwig.domain.entity.GlucoseReading;
 import com.blueship581.hedwig.domain.entity.MonitoredSubject;
 import com.blueship581.hedwig.domain.entity.VendorConnection;
-import com.blueship581.hedwig.domain.repository.GlucoseReadingRepository;
-import com.blueship581.hedwig.domain.repository.MonitoredSubjectRepository;
-import com.blueship581.hedwig.domain.repository.VendorConnectionRepository;
+import com.blueship581.hedwig.domain.mapper.GlucoseReadingMapper;
+import com.blueship581.hedwig.domain.mapper.MonitoredSubjectMapper;
+import com.blueship581.hedwig.domain.mapper.VendorConnectionMapper;
 import com.blueship581.hedwig.dto.GlucoseReadingDto;
 import com.blueship581.hedwig.dto.SyncResultDto;
 import com.blueship581.hedwig.exception.ResourceNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,17 +30,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GlucoseService {
 
-    private final GlucoseReadingRepository readingRepository;
-    private final MonitoredSubjectRepository subjectRepository;
-    private final VendorConnectionRepository connectionRepository;
+    private final GlucoseReadingMapper readingMapper;
+    private final MonitoredSubjectMapper subjectMapper;
+    private final VendorConnectionMapper connectionMapper;
     private final VendorClientFactory vendorClientFactory;
     private final GlucoseConverter glucoseConverter;
 
     @Transactional
     public GlucoseReadingDto fetchLatest(Long connectionId, Long subjectId) {
-        VendorConnection connection = connectionRepository.findById(connectionId)
+        VendorConnection connection = Optional.ofNullable(connectionMapper.selectById(connectionId))
                 .orElseThrow(() -> new ResourceNotFoundException("设备连接不存在：" + connectionId));
-        MonitoredSubject subject = subjectRepository.findById(subjectId)
+        MonitoredSubject subject = Optional.ofNullable(subjectMapper.selectById(subjectId))
                 .orElseThrow(() -> new ResourceNotFoundException("监测对象不存在：" + subjectId));
 
         VendorClient client = vendorClientFactory.getClient(connection.getVendorType());
@@ -48,17 +50,21 @@ public class GlucoseService {
                 connection.getAccessToken(), connection.getVendorUserId(), vendorSubject);
 
         saveIfNew(subject.getId(), latest);
-        GlucoseReading reading = readingRepository
-                .findTopByMonitoredSubjectIdOrderByReadingTimeDesc(subject.getId())
+        GlucoseReading reading = readingMapper.selectList(
+                        Wrappers.lambdaQuery(GlucoseReading.class)
+                                .eq(GlucoseReading::getMonitoredSubjectId, subject.getId())
+                                .orderByDesc(GlucoseReading::getReadingTime)
+                                .last("LIMIT 1"))
+                .stream().findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("同步后仍未获取到监测对象的血糖读数：" + subjectId));
         return toDto(reading);
     }
 
     @Transactional
     public List<GlucoseReadingDto> fetchHistory(Long connectionId, Long subjectId) {
-        VendorConnection connection = connectionRepository.findById(connectionId)
+        VendorConnection connection = Optional.ofNullable(connectionMapper.selectById(connectionId))
                 .orElseThrow(() -> new ResourceNotFoundException("设备连接不存在：" + connectionId));
-        MonitoredSubject subject = subjectRepository.findById(subjectId)
+        MonitoredSubject subject = Optional.ofNullable(subjectMapper.selectById(subjectId))
                 .orElseThrow(() -> new ResourceNotFoundException("监测对象不存在：" + subjectId));
 
         VendorClient client = vendorClientFactory.getClient(connection.getVendorType());
@@ -78,8 +84,10 @@ public class GlucoseService {
     }
 
     public List<GlucoseReadingDto> getReadings(Long subjectId) {
-        List<GlucoseReading> readings = readingRepository
-                .findByMonitoredSubjectIdOrderByReadingTimeDesc(subjectId);
+        List<GlucoseReading> readings = readingMapper.selectList(
+                Wrappers.lambdaQuery(GlucoseReading.class)
+                        .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                        .orderByDesc(GlucoseReading::getReadingTime));
 
         if (readings.isEmpty()) {
             readings = fetchHistoryEntitiesForSubject(subjectId);
@@ -92,10 +100,20 @@ public class GlucoseService {
     }
 
     public GlucoseReadingDto getLatestReading(Long subjectId) {
-        return readingRepository.findTopByMonitoredSubjectIdOrderByReadingTimeDesc(subjectId)
+        return readingMapper.selectList(
+                        Wrappers.lambdaQuery(GlucoseReading.class)
+                                .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                                .orderByDesc(GlucoseReading::getReadingTime)
+                                .last("LIMIT 1"))
+                .stream().findFirst()
                 .or(() -> {
                     fetchHistoryEntitiesForSubject(subjectId);
-                    return readingRepository.findTopByMonitoredSubjectIdOrderByReadingTimeDesc(subjectId);
+                    return readingMapper.selectList(
+                                    Wrappers.lambdaQuery(GlucoseReading.class)
+                                            .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                                            .orderByDesc(GlucoseReading::getReadingTime)
+                                            .last("LIMIT 1"))
+                            .stream().findFirst();
                 })
                 .map(this::toDto)
                 .orElseThrow(() -> new ResourceNotFoundException("未找到监测对象的血糖读数：" + subjectId));
@@ -112,9 +130,9 @@ public class GlucoseService {
 
     @Transactional
     public SyncResultDto syncHistory(Long subjectId) {
-        MonitoredSubject subject = subjectRepository.findById(subjectId)
+        MonitoredSubject subject = Optional.ofNullable(subjectMapper.selectById(subjectId))
                 .orElseThrow(() -> new ResourceNotFoundException("监测对象不存在：" + subjectId));
-        VendorConnection connection = connectionRepository.findById(subject.getVendorConnectionId())
+        VendorConnection connection = Optional.ofNullable(connectionMapper.selectById(subject.getVendorConnectionId()))
                 .orElseThrow(() -> new ResourceNotFoundException("设备连接不存在：" + subject.getVendorConnectionId()));
 
         VendorClient client = vendorClientFactory.getClient(connection.getVendorType());
@@ -134,15 +152,17 @@ public class GlucoseService {
                 .map(VendorGlucoseData::getReadingTime)
                 .max(Instant::compareTo).orElseThrow();
 
-        readingRepository.deleteByMonitoredSubjectIdAndReadingTimeBetween(
-                subjectId, minTime, maxTime);
+        readingMapper.delete(
+                Wrappers.lambdaQuery(GlucoseReading.class)
+                        .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                        .between(GlucoseReading::getReadingTime, minTime, maxTime));
 
         for (VendorGlucoseData data : history) {
             saveIfNew(subjectId, data);
         }
 
         connection.setLastSyncedAt(Instant.now());
-        connectionRepository.save(connection);
+        connectionMapper.updateById(connection);
 
         log.info("Synced {} readings for subject {} (range {} ~ {})",
                 history.size(), subjectId, minTime, maxTime);
@@ -160,9 +180,9 @@ public class GlucoseService {
      */
     @Transactional
     public boolean pollLatest(Long connectionId, Long subjectId) {
-        VendorConnection connection = connectionRepository.findById(connectionId)
+        VendorConnection connection = Optional.ofNullable(connectionMapper.selectById(connectionId))
                 .orElseThrow(() -> new ResourceNotFoundException("设备连接不存在：" + connectionId));
-        MonitoredSubject subject = subjectRepository.findById(subjectId)
+        MonitoredSubject subject = Optional.ofNullable(subjectMapper.selectById(subjectId))
                 .orElseThrow(() -> new ResourceNotFoundException("监测对象不存在：" + subjectId));
 
         VendorClient client = vendorClientFactory.getClient(connection.getVendorType());
@@ -174,13 +194,17 @@ public class GlucoseService {
         boolean isNew = saveIfNew(subject.getId(), latest);
         if (isNew) {
             connection.setLastSyncedAt(Instant.now());
-            connectionRepository.save(connection);
+            connectionMapper.updateById(connection);
         }
         return isNew;
     }
 
     private boolean saveIfNew(Long subjectId, VendorGlucoseData data) {
-        if (readingRepository.existsByMonitoredSubjectIdAndReadingTime(subjectId, data.getReadingTime())) {
+        boolean exists = readingMapper.exists(
+                Wrappers.lambdaQuery(GlucoseReading.class)
+                        .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                        .eq(GlucoseReading::getReadingTime, data.getReadingTime()));
+        if (exists) {
             return false;
         }
 
@@ -193,14 +217,14 @@ public class GlucoseService {
                 .readingTime(data.getReadingTime())
                 .pushedToNightscout(false)
                 .build();
-        readingRepository.save(reading);
+        readingMapper.insert(reading);
         return true;
     }
 
     private List<GlucoseReading> fetchHistoryEntitiesForSubject(Long subjectId) {
-        MonitoredSubject subject = subjectRepository.findById(subjectId)
+        MonitoredSubject subject = Optional.ofNullable(subjectMapper.selectById(subjectId))
                 .orElseThrow(() -> new ResourceNotFoundException("监测对象不存在：" + subjectId));
-        VendorConnection connection = connectionRepository.findById(subject.getVendorConnectionId())
+        VendorConnection connection = Optional.ofNullable(connectionMapper.selectById(subject.getVendorConnectionId()))
                 .orElseThrow(() -> new ResourceNotFoundException("设备连接不存在：" + subject.getVendorConnectionId()));
 
         VendorClient client = vendorClientFactory.getClient(connection.getVendorType());
@@ -213,9 +237,12 @@ public class GlucoseService {
         }
 
         connection.setLastSyncedAt(Instant.now());
-        connectionRepository.save(connection);
+        connectionMapper.updateById(connection);
 
-        return readingRepository.findByMonitoredSubjectIdOrderByReadingTimeDesc(subjectId);
+        return readingMapper.selectList(
+                Wrappers.lambdaQuery(GlucoseReading.class)
+                        .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                        .orderByDesc(GlucoseReading::getReadingTime));
     }
 
     private VendorSubject toVendorSubject(MonitoredSubject s) {

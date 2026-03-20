@@ -5,7 +5,6 @@ import com.blueship581.hedwig.vendor.model.VendorGlucoseData;
 import com.blueship581.hedwig.vendor.model.VendorLoginRequest;
 import com.blueship581.hedwig.vendor.model.VendorSubject;
 import com.blueship581.hedwig.vendor.model.VendorTokenInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,7 +37,7 @@ class SiSensingClientTest {
                         """);
             }
             return Mono.error(new IllegalStateException("Unexpected path: " + path));
-        }), new ObjectMapper());
+        }));
 
         VendorTokenInfo tokenInfo = client.login(VendorLoginRequest.builder()
                 .username("13800138000")
@@ -60,7 +59,7 @@ class SiSensingClientTest {
                         """);
             }
             return Mono.error(new IllegalStateException("Unexpected path: " + path));
-        }), new ObjectMapper());
+        }));
 
         VendorTokenInfo tokenInfo = client.validateToken("plain-token-value");
 
@@ -77,7 +76,7 @@ class SiSensingClientTest {
                         """);
             }
             return Mono.error(new IllegalStateException("Unexpected path: " + path));
-        }), new ObjectMapper());
+        }));
 
         VendorException exception = assertThrows(VendorException.class, () -> client.login(
                 VendorLoginRequest.builder()
@@ -99,7 +98,7 @@ class SiSensingClientTest {
                         """);
             }
             return Mono.error(new IllegalStateException("Unexpected path: " + path));
-        }), new ObjectMapper());
+        }));
 
         VendorException exception = assertThrows(
                 VendorException.class,
@@ -136,7 +135,7 @@ class SiSensingClientTest {
                         """);
             }
             return Mono.error(new IllegalStateException("Unexpected path: " + path));
-        }), new ObjectMapper());
+        }));
 
         List<VendorSubject> subjects = client.getMonitoredSubjects("plain-token-value", "user-1");
 
@@ -173,7 +172,7 @@ class SiSensingClientTest {
                         """);
             }
             return Mono.error(new IllegalStateException("Unexpected path: " + path));
-        }), new ObjectMapper());
+        }));
 
         List<VendorGlucoseData> readings = client.getHistoricalGlucose(
                 "plain-token-value",

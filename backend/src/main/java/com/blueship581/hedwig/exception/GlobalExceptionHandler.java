@@ -1,64 +1,116 @@
 package com.blueship581.hedwig.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.time.Instant;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<Map<String, Object>> handleAuthException(AuthException e) {
-        return error(HttpStatus.BAD_REQUEST, e.getMessage());
+    // ==================== 业务异常（统一基类） ====================
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResult<Void>> handleBusinessException(BusinessException e) {
+        ErrorCode ec = e.getErrorCode();
+        // 厂商异常打印堆栈便于排查上游问题
+        if (e instanceof VendorException) {
+            log.error("Vendor error [{}]: {}", ec.getCode(), e.getMessage(), e);
+        } else {
+            log.warn("Business error [{}]: {}", ec.getCode(), e.getMessage());
+        }
+        return ResponseEntity.status(ec.getHttpStatus())
+                .body(ApiResult.fail(ec, e.getMessage()));
     }
+
+    // ==================== Spring Security 异常 ====================
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException e) {
-        return error(HttpStatus.UNAUTHORIZED, "用户名或密码错误");
+    public ResponseEntity<ApiResult<Void>> handleBadCredentials(BadCredentialsException e) {
+        return buildResponse(ErrorCode.BAD_CREDENTIALS);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException e) {
-        return error(HttpStatus.NOT_FOUND, e.getMessage());
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResult<Void>> handleAccessDenied(AccessDeniedException e) {
+        return buildResponse(ErrorCode.ACCESS_DENIED);
     }
 
-    @ExceptionHandler(VendorException.class)
-    public ResponseEntity<Map<String, Object>> handleVendorException(VendorException e) {
-        log.error("Vendor error: {}", e.getMessage(), e);
-        return error(HttpStatus.BAD_GATEWAY, e.getMessage());
+    // ==================== 参数校验 & 请求格式异常 ====================
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResult<Void>> handleValidation(MethodArgumentNotValidException e) {
+        String detail = e.getBindingResult().getFieldErrors().stream()
+                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        return buildResponse(ErrorCode.PARAM_INVALID, detail);
     }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResult<Void>> handleMissingParam(MissingServletRequestParameterException e) {
+        return buildResponse(ErrorCode.PARAM_MISSING, "缺少必要参数：" + e.getParameterName());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResult<Void>> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        return buildResponse(ErrorCode.PARAM_INVALID, "参数类型不匹配：" + e.getName());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResult<Void>> handleUnreadable(HttpMessageNotReadableException e) {
+        return buildResponse(ErrorCode.BAD_REQUEST, "请求体格式错误，请检查 JSON 格式");
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResult<Void>> handleIllegalArgument(IllegalArgumentException e) {
+        return buildResponse(ErrorCode.BAD_REQUEST, e.getMessage());
+    }
+
+    // ==================== HTTP 方法 & 媒体类型 ====================
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResult<Void>> handleMethodNotAllowed(HttpRequestMethodNotSupportedException e) {
+        return buildResponse(ErrorCode.METHOD_NOT_ALLOWED);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ApiResult<Void>> handleMediaType(HttpMediaTypeNotSupportedException e) {
+        return buildResponse(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ApiResult<Void>> handleNoResource(NoResourceFoundException e) {
+        return buildResponse(ErrorCode.RESOURCE_NOT_FOUND, "请求的路径不存在：" + e.getResourcePath());
+    }
+
+    // ==================== 兜底 ====================
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneric(Exception e) {
+    public ResponseEntity<ApiResult<Void>> handleGeneric(Exception e) {
         log.error("Unexpected error", e);
-        return error(HttpStatus.INTERNAL_SERVER_ERROR, "系统出现异常，请稍后重试");
+        return buildResponse(ErrorCode.INTERNAL_ERROR);
     }
 
-    private ResponseEntity<Map<String, Object>> error(HttpStatus status, String message) {
-        return ResponseEntity.status(status).body(Map.of(
-                "timestamp", Instant.now().toString(),
-                "status", status.value(),
-                "error", localizeStatus(status),
-                "message", message
-        ));
+    // ==================== 工具方法 ====================
+
+    private ResponseEntity<ApiResult<Void>> buildResponse(ErrorCode ec) {
+        return ResponseEntity.status(ec.getHttpStatus())
+                .body(ApiResult.fail(ec));
     }
 
-    private String localizeStatus(HttpStatus status) {
-        return switch (status) {
-            case BAD_REQUEST -> "请求参数错误";
-            case UNAUTHORIZED -> "未登录";
-            case FORBIDDEN -> "禁止访问";
-            case NOT_FOUND -> "资源不存在";
-            case BAD_GATEWAY -> "上游服务异常";
-            case INTERNAL_SERVER_ERROR -> "服务器内部错误";
-            default -> status.getReasonPhrase();
-        };
+    private ResponseEntity<ApiResult<Void>> buildResponse(ErrorCode ec, String message) {
+        return ResponseEntity.status(ec.getHttpStatus())
+                .body(ApiResult.fail(ec, message));
     }
 }

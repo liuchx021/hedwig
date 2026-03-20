@@ -1,7 +1,9 @@
 package com.blueship581.hedwig.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.blueship581.hedwig.domain.enums.TrendDirection;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,35 +12,24 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "glucose_readings",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_subject_reading_time",
-                columnNames = {"monitoredSubjectId", "readingTime"}
-        ))
+@TableName("glucose_readings")
 public class GlucoseReading {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
     private Long monitoredSubjectId;
 
-    @Column(nullable = false)
     private Double glucoseMmol;
 
-    @Column(nullable = false)
     private Double glucoseMgdl;
 
-    @Enumerated(EnumType.STRING)
     @Builder.Default
     private TrendDirection trendDirection = TrendDirection.NONE;
 
-    @Column(nullable = false)
     private Instant readingTime;
 
     @Builder.Default

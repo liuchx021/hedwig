@@ -1,15 +1,17 @@
 package com.blueship581.hedwig.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.blueship581.hedwig.domain.entity.GatewayUser;
 import com.blueship581.hedwig.domain.entity.MonitoredSubject;
 import com.blueship581.hedwig.domain.entity.VendorConnection;
 import com.blueship581.hedwig.domain.enums.TokenStatus;
-import com.blueship581.hedwig.domain.repository.GatewayUserRepository;
-import com.blueship581.hedwig.domain.repository.MonitoredSubjectRepository;
-import com.blueship581.hedwig.domain.repository.VendorConnectionRepository;
+import com.blueship581.hedwig.domain.mapper.GatewayUserMapper;
+import com.blueship581.hedwig.domain.mapper.MonitoredSubjectMapper;
+import com.blueship581.hedwig.domain.mapper.VendorConnectionMapper;
 import com.blueship581.hedwig.dto.ConnectByLoginRequest;
 import com.blueship581.hedwig.dto.ConnectByTokenRequest;
 import com.blueship581.hedwig.dto.VendorConnectionDto;
+import com.blueship581.hedwig.exception.ErrorCode;
 import com.blueship581.hedwig.exception.ResourceNotFoundException;
 import com.blueship581.hedwig.exception.VendorException;
 import com.blueship581.hedwig.vendor.client.VendorClient;
@@ -19,13 +21,14 @@ import com.blueship581.hedwig.vendor.model.VendorSubject;
 import com.blueship581.hedwig.vendor.model.VendorTokenInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.blueship581.hedwig.exception.AuthException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -33,9 +36,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class VendorConnectionService {
 
-    private final VendorConnectionRepository connectionRepository;
-    private final MonitoredSubjectRepository subjectRepository;
-    private final GatewayUserRepository userRepository;
+    private final VendorConnectionMapper connectionMapper;
+    private final MonitoredSubjectMapper subjectMapper;
+    private final GatewayUserMapper userMapper;
     private final VendorClientFactory vendorClientFactory;
 
     @Transactional
@@ -51,11 +54,14 @@ public class VendorConnectionService {
                 tokenInfo.isValid(), tokenInfo.getUserId(), tokenInfo.getExpiresAt());
 
         if (!tokenInfo.isValid()) {
-            throw new VendorException("访问令牌无效或已过期，请重新获取后再连接");
+            throw new VendorException(ErrorCode.VENDOR_TOKEN_INVALID, "访问令牌无效或已过期，请重新获取后再连接");
         }
 
-        VendorConnection connection = connectionRepository
-                .findByGatewayUserIdAndVendorType(user.getId(), request.getVendorType())
+        VendorConnection connection = connectionMapper.selectList(
+                        Wrappers.lambdaQuery(VendorConnection.class)
+                                .eq(VendorConnection::getGatewayUserId, user.getId())
+                                .eq(VendorConnection::getVendorType, request.getVendorType()))
+                .stream().findFirst()
                 .orElse(VendorConnection.builder()
                         .gatewayUserId(user.getId())
                         .vendorType(request.getVendorType())
@@ -65,7 +71,11 @@ public class VendorConnectionService {
         connection.setVendorUserId(tokenInfo.getUserId());
         connection.setTokenExpiresAt(tokenInfo.getExpiresAt());
         connection.setTokenStatus(TokenStatus.ACTIVE);
-        connection = connectionRepository.save(connection);
+        if (connection.getId() == null) {
+            connectionMapper.insert(connection);
+        } else {
+            connectionMapper.updateById(connection);
+        }
 
         // Sync monitored subjects
         syncSubjects(connection, client);
@@ -84,11 +94,14 @@ public class VendorConnectionService {
                 .build());
 
         if (!tokenInfo.isValid()) {
-            throw new VendorException("厂商账号登录失败，或返回的访问令牌无效");
+            throw new VendorException(ErrorCode.VENDOR_LOGIN_FAILED, "厂商账号登录失败，或返回的访问令牌无效");
         }
 
-        VendorConnection connection = connectionRepository
-                .findByGatewayUserIdAndVendorType(user.getId(), request.getVendorType())
+        VendorConnection connection = connectionMapper.selectList(
+                        Wrappers.lambdaQuery(VendorConnection.class)
+                                .eq(VendorConnection::getGatewayUserId, user.getId())
+                                .eq(VendorConnection::getVendorType, request.getVendorType()))
+                .stream().findFirst()
                 .orElse(VendorConnection.builder()
                         .gatewayUserId(user.getId())
                         .vendorType(request.getVendorType())
@@ -98,7 +111,11 @@ public class VendorConnectionService {
         connection.setVendorUserId(tokenInfo.getUserId());
         connection.setTokenExpiresAt(tokenInfo.getExpiresAt());
         connection.setTokenStatus(TokenStatus.ACTIVE);
-        connection = connectionRepository.save(connection);
+        if (connection.getId() == null) {
+            connectionMapper.insert(connection);
+        } else {
+            connectionMapper.updateById(connection);
+        }
 
         syncSubjects(connection, client);
 
@@ -108,15 +125,15 @@ public class VendorConnectionService {
     @Transactional
     public VendorConnectionDto refreshToken(String username, Long connectionId) {
         GatewayUser user = findUser(username);
-        VendorConnection connection = connectionRepository.findById(connectionId)
+        VendorConnection connection = Optional.ofNullable(connectionMapper.selectById(connectionId))
                 .filter(c -> c.getGatewayUserId().equals(user.getId()))
-                .orElseThrow(() -> new ResourceNotFoundException("设备连接不存在：" + connectionId));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.VENDOR_CONNECTION_NOT_FOUND, "设备连接不存在：" + connectionId));
 
         VendorClient client = vendorClientFactory.getClient(connection.getVendorType());
         VendorTokenInfo tokenInfo = client.validateToken(connection.getAccessToken());
         connection.setTokenExpiresAt(tokenInfo.getExpiresAt());
         connection.setTokenStatus(tokenInfo.isValid() ? TokenStatus.ACTIVE : TokenStatus.EXPIRED);
-        connectionRepository.save(connection);
+        connectionMapper.updateById(connection);
 
         return toDto(connection);
     }
@@ -124,23 +141,27 @@ public class VendorConnectionService {
     @Transactional
     public void disconnect(String username, Long connectionId) {
         GatewayUser user = findUser(username);
-        VendorConnection connection = connectionRepository.findById(connectionId)
+        VendorConnection connection = Optional.ofNullable(connectionMapper.selectById(connectionId))
                 .filter(c -> c.getGatewayUserId().equals(user.getId()))
-                .orElseThrow(() -> new ResourceNotFoundException("设备连接不存在：" + connectionId));
+                .orElseThrow(() -> new ResourceNotFoundException(ErrorCode.VENDOR_CONNECTION_NOT_FOUND, "设备连接不存在：" + connectionId));
 
         // Deactivate all subjects for this connection
-        subjectRepository.findByVendorConnectionId(connection.getId())
+        subjectMapper.selectList(
+                Wrappers.lambdaQuery(MonitoredSubject.class)
+                        .eq(MonitoredSubject::getVendorConnectionId, connection.getId()))
                 .forEach(s -> {
                     s.setIsActive(false);
-                    subjectRepository.save(s);
+                    subjectMapper.updateById(s);
                 });
 
-        connectionRepository.delete(connection);
+        connectionMapper.deleteById(connection.getId());
     }
 
     public List<VendorConnectionDto> getConnections(String username) {
         GatewayUser user = findUser(username);
-        return connectionRepository.findByGatewayUserId(user.getId())
+        return connectionMapper.selectList(
+                        Wrappers.lambdaQuery(VendorConnection.class)
+                                .eq(VendorConnection::getGatewayUserId, user.getId()))
                 .stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
@@ -163,25 +184,29 @@ public class VendorConnectionService {
                         ? now.plusSeconds(vs.getSensorRestSeconds())
                         : null;
 
-                subjectRepository.findByVendorConnectionIdAndVendorSubjectId(
-                        connection.getId(), vs.getSubjectId())
-                        .ifPresentOrElse(
-                                existing -> {
-                                    existing.setDisplayName(vs.getDisplayName());
-                                    existing.setVendorDeviceId(vs.getDeviceId());
-                                    existing.setIsActive(true);
-                                    existing.setSensorExpiresAt(sensorExpiresAt);
-                                    subjectRepository.save(existing);
-                                },
-                                () -> subjectRepository.save(MonitoredSubject.builder()
-                                        .vendorConnectionId(connection.getId())
-                                        .vendorSubjectId(vs.getSubjectId())
-                                        .vendorDeviceId(vs.getDeviceId())
-                                        .displayName(vs.getDisplayName())
-                                        .isActive(true)
-                                        .sensorExpiresAt(sensorExpiresAt)
-                                        .build())
-                        );
+                Optional<MonitoredSubject> existingOpt = subjectMapper.selectList(
+                                Wrappers.lambdaQuery(MonitoredSubject.class)
+                                        .eq(MonitoredSubject::getVendorConnectionId, connection.getId())
+                                        .eq(MonitoredSubject::getVendorSubjectId, vs.getSubjectId()))
+                        .stream().findFirst();
+
+                if (existingOpt.isPresent()) {
+                    MonitoredSubject existing = existingOpt.get();
+                    existing.setDisplayName(vs.getDisplayName());
+                    existing.setVendorDeviceId(vs.getDeviceId());
+                    existing.setIsActive(true);
+                    existing.setSensorExpiresAt(sensorExpiresAt);
+                    subjectMapper.updateById(existing);
+                } else {
+                    subjectMapper.insert(MonitoredSubject.builder()
+                            .vendorConnectionId(connection.getId())
+                            .vendorSubjectId(vs.getSubjectId())
+                            .vendorDeviceId(vs.getDeviceId())
+                            .displayName(vs.getDisplayName())
+                            .isActive(true)
+                            .sensorExpiresAt(sensorExpiresAt)
+                            .build());
+                }
             }
         } catch (Exception e) {
             log.warn("Failed to sync subjects for connection {}: {}", connection.getId(), e.getMessage());
@@ -189,13 +214,20 @@ public class VendorConnectionService {
     }
 
     private GatewayUser findUser(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("用户不存在：" + username));
+        GatewayUser user = userMapper.selectOne(
+                Wrappers.lambdaQuery(GatewayUser.class)
+                        .eq(GatewayUser::getUsername, username));
+        if (user == null) {
+            throw new AuthException(ErrorCode.USER_NOT_FOUND, "用户不存在：" + username);
+        }
+        return user;
     }
 
     private VendorConnectionDto toDto(VendorConnection c) {
-        MonitoredSubject primarySubject = subjectRepository
-                .findByVendorConnectionIdAndIsActive(c.getId(), true)
+        MonitoredSubject primarySubject = subjectMapper.selectList(
+                        Wrappers.lambdaQuery(MonitoredSubject.class)
+                                .eq(MonitoredSubject::getVendorConnectionId, c.getId())
+                                .eq(MonitoredSubject::getIsActive, true))
                 .stream()
                 .min(Comparator.comparing(MonitoredSubject::getId))
                 .orElse(null);

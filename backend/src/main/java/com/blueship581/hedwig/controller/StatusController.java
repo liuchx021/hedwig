@@ -1,9 +1,12 @@
 package com.blueship581.hedwig.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.blueship581.hedwig.domain.entity.GlucoseReading;
+import com.blueship581.hedwig.domain.entity.VendorConnection;
 import com.blueship581.hedwig.domain.enums.TokenStatus;
-import com.blueship581.hedwig.domain.repository.GlucoseReadingRepository;
-import com.blueship581.hedwig.domain.repository.VendorConnectionRepository;
-import com.blueship581.hedwig.service.NightscoutClient;
+import com.blueship581.hedwig.domain.mapper.GlucoseReadingMapper;
+import com.blueship581.hedwig.domain.mapper.VendorConnectionMapper;
+import com.blueship581.hedwig.service.NightscoutTargetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,22 +21,25 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StatusController {
 
-    private final VendorConnectionRepository connectionRepository;
-    private final GlucoseReadingRepository readingRepository;
-    private final NightscoutClient nightscoutClient;
+    private final VendorConnectionMapper connectionMapper;
+    private final GlucoseReadingMapper readingMapper;
+    private final NightscoutTargetService targetService;
 
-    /**
-     * GET /api/status
-     * Returns overall system health and statistics.
-     */
     @GetMapping
     public ResponseEntity<Map<String, Object>> status() {
-        long totalConnections = connectionRepository.count();
-        long activeConnections = connectionRepository.findByTokenStatusNot(TokenStatus.EXPIRED).size();
-        long expiringSoon = connectionRepository
-                .findAllByTokenStatusIn(List.of(TokenStatus.EXPIRING_SOON)).size();
-        long totalReadings = readingRepository.count();
-        long pendingSync = readingRepository.findByPushedToNightscoutFalse().size();
+        long totalConnections = connectionMapper.selectCount(null);
+        long activeConnections = connectionMapper.selectCount(
+                Wrappers.lambdaQuery(VendorConnection.class)
+                        .ne(VendorConnection::getTokenStatus, TokenStatus.EXPIRED));
+        long expiringSoon = connectionMapper.selectCount(
+                Wrappers.lambdaQuery(VendorConnection.class)
+                        .eq(VendorConnection::getTokenStatus, TokenStatus.EXPIRING_SOON));
+        long totalReadings = readingMapper.selectCount(null);
+        long pendingSync = readingMapper.selectCount(
+                Wrappers.lambdaQuery(GlucoseReading.class)
+                        .eq(GlucoseReading::getPushedToNightscout, false));
+
+        int activeTargets = targetService.getAllActiveTargets().size();
 
         return ResponseEntity.ok(Map.of(
                 "timestamp", Instant.now().toString(),
@@ -49,7 +54,7 @@ public class StatusController {
                         "pendingNightscoutSync", pendingSync
                 ),
                 "nightscout", Map.of(
-                        "enabled", nightscoutClient.isEnabled()
+                        "activeTargets", activeTargets
                 )
         ));
     }

@@ -1,34 +1,28 @@
 spring:
   application:
     name: hedwig
-  jackson:
-    time-zone: ${TZ:Asia/Shanghai}
   datasource:
-    url: ${DB_URL:jdbc:h2:file:${APP_DATA_DIR:./data}/hedwig;MODE=PostgreSQL;DB_CLOSE_ON_EXIT=FALSE}
-    driver-class-name: ${DB_DRIVER_CLASS_NAME:org.h2.Driver}
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:}
-  h2:
-    console:
-      enabled: false
-  jpa:
-    database-platform: ${JPA_DIALECT:org.hibernate.dialect.H2Dialect}
-    open-in-view: false
-    hibernate:
-      ddl-auto: ${DDL_AUTO:update}
-    show-sql: ${SHOW_SQL:false}
-    properties:
-      hibernate:
-        format_sql: true
+    url: ${DB_URL:jdbc:postgresql://localhost:15432/hedwig}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
+  type-enums-package: com.blueship581.hedwig.domain.enums
 
 jwt:
   secret: ${JWT_SECRET:change-this-jwt-secret-before-production-use-please}
   expiration: ${JWT_EXPIRATION:86400000}
-
-nightscout:
-  enabled: ${NIGHTSCOUT_ENABLED:false}
-  url: ${NIGHTSCOUT_URL:}
-  api-secret: ${NIGHTSCOUT_API_SECRET:}
 
 polling:
   interval-ms: ${POLLING_INTERVAL_MS:300000}

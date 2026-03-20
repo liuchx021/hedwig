@@ -1,5 +1,6 @@
 package com.blueship581.hedwig.service;
 
+import com.blueship581.hedwig.domain.entity.NightscoutTarget;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,30 +11,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HexFormat;
 import java.util.List;
 
 /**
  * Client for pushing glucose data to a Nightscout server.
- * POST /api/v1/entries with header api-secret = SHA1(secret)
+ * Supports both dynamic targets (from DB) and legacy config-based mode.
  */
 @Slf4j
 @Component
 public class NightscoutClient {
-
-    @Value("${nightscout.url:}")
-    private String nightscoutUrl;
-
-    @Value("${nightscout.api-secret:}")
-    private String nightscoutApiSecret;
-
-    @Value("${nightscout.enabled:false}")
-    private boolean enabled;
 
     @Value("${TZ:Asia/Shanghai}")
     private String timezone;
@@ -44,52 +33,56 @@ public class NightscoutClient {
         this.webClientBuilder = webClientBuilder;
     }
 
-    public boolean isEnabled() {
-        return enabled && nightscoutUrl != null && !nightscoutUrl.isBlank();
-    }
-
     /**
-     * Push a list of SGV entries to Nightscout.
+     * Push entries to a specific Nightscout target (DB-driven).
      * Returns the number of successfully pushed entries.
      */
-    public int pushEntries(List<SgvEntry> entries) {
-        if (!isEnabled()) {
-            log.debug("Nightscout sync is disabled, skipping push of {} entries", entries.size());
-            return 0;
-        }
-
+    public int pushEntries(NightscoutTarget target, List<SgvEntry> entries) {
         try {
-            String apiSecretHash = sha1(nightscoutApiSecret);
-            WebClient client = webClientBuilder.baseUrl(nightscoutUrl).build();
+            WebClient client = webClientBuilder.baseUrl(target.getBaseUrl()).build();
 
             client.post()
                     .uri("/api/v1/entries")
-                    .header("api-secret", apiSecretHash)
+                    .header("api-secret", target.getApiSecretSha1())
                     .header("Content-Type", "application/json")
                     .bodyValue(entries)
                     .retrieve()
                     .toBodilessEntity()
                     .block();
 
-            log.info("Pushed {} entries to Nightscout", entries.size());
+            log.info("Pushed {} entries to Nightscout target '{}' ({})",
+                    entries.size(), target.getName(), target.getBaseUrl());
             return entries.size();
 
         } catch (WebClientResponseException e) {
-            log.error("Nightscout push failed with status {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
-            return 0;
+            log.error("Nightscout push failed for target '{}' with status {}: {}",
+                    target.getName(), e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("HTTP " + e.getStatusCode() + ": " + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
-            log.error("Nightscout push failed", e);
-            return 0;
+            log.error("Nightscout push failed for target '{}'", target.getName(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
-    private String sha1(String input) {
+    /**
+     * Test connectivity to a Nightscout target by fetching server status.
+     */
+    public boolean testConnection(NightscoutTarget target) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
+            WebClient client = webClientBuilder.baseUrl(target.getBaseUrl()).build();
+
+            client.get()
+                    .uri("/api/v1/status")
+                    .header("api-secret", target.getApiSecretSha1())
+                    .retrieve()
+                    .toBodilessEntity()
+                    .block();
+
+            return true;
         } catch (Exception e) {
-            throw new IllegalStateException("系统不支持 Nightscout 所需的 SHA-1 摘要算法", e);
+            log.warn("Nightscout connection test failed for target '{}': {}",
+                    target.getName(), e.getMessage());
+            return false;
         }
     }
 

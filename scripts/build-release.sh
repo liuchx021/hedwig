@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-FRONTEND_DIR="$ROOT_DIR/frontend"
+FRONTEND_DIR="$ROOT_DIR/frontend-react"
 BACKEND_DIR="$ROOT_DIR/backend"
 RELEASE_ROOT="$ROOT_DIR/release"
 PACKAGE_DIR="$RELEASE_ROOT/hedwig"
@@ -30,27 +30,16 @@ configure_java_home() {
   fi
 }
 
-ensure_trunk() {
-  if command -v trunk >/dev/null 2>&1; then
-    return
-  fi
-
-  echo "trunk not found, installing with cargo..."
-  cargo install trunk --locked
-}
-
 echo "[1/4] Checking build tools"
 configure_java_home
 require_command java
-require_command cargo
-require_command rustup
+require_command node
+require_command npm
 require_command mvn
 require_command tar
-ensure_trunk
-rustup target add wasm32-unknown-unknown >/dev/null
 
 echo "[2/4] Building frontend"
-(cd "$FRONTEND_DIR" && env -u NO_COLOR trunk build --release)
+(cd "$FRONTEND_DIR" && npm ci && npm run build)
 
 echo "[3/4] Building backend"
 if [[ "${SKIP_TESTS:-0}" == "1" ]]; then

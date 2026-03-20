@@ -1,6 +1,6 @@
 package com.blueship581.hedwig.domain.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,24 +9,20 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 
 @Data
-@Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "gateway_users")
+@TableName("gateway_users")
 public class GatewayUser {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 100)
     private String username;
 
-    @Column(nullable = false)
     private String passwordHash;
 
-    @Column(nullable = false, updatable = false)
+    @TableField(fill = FieldFill.INSERT)
     @Builder.Default
     private Instant createdAt = Instant.now();
 }

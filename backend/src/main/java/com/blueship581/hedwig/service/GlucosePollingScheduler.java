@@ -1,10 +1,11 @@
 package com.blueship581.hedwig.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.blueship581.hedwig.domain.entity.MonitoredSubject;
 import com.blueship581.hedwig.domain.entity.VendorConnection;
 import com.blueship581.hedwig.domain.enums.TokenStatus;
-import com.blueship581.hedwig.domain.repository.MonitoredSubjectRepository;
-import com.blueship581.hedwig.domain.repository.VendorConnectionRepository;
+import com.blueship581.hedwig.domain.mapper.MonitoredSubjectMapper;
+import com.blueship581.hedwig.domain.mapper.VendorConnectionMapper;
 import com.blueship581.hedwig.vendor.client.OttaiClient;
 import com.blueship581.hedwig.vendor.client.SiSensingClient;
 import com.blueship581.hedwig.vendor.client.VendorClient;
@@ -34,8 +35,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GlucosePollingScheduler {
 
-    private final VendorConnectionRepository connectionRepository;
-    private final MonitoredSubjectRepository subjectRepository;
+    private final VendorConnectionMapper connectionMapper;
+    private final MonitoredSubjectMapper subjectMapper;
     private final GlucoseService glucoseService;
     private final NightscoutSyncService nightscoutSyncService;
     private final TokenExpiryMonitorService tokenExpiryMonitorService;
@@ -49,8 +50,9 @@ public class GlucosePollingScheduler {
 
     @Scheduled(fixedDelay = 2000)
     public void tick() {
-        List<VendorConnection> activeConnections = connectionRepository
-                .findByTokenStatusNot(TokenStatus.EXPIRED);
+        List<VendorConnection> activeConnections = connectionMapper.selectList(
+                Wrappers.lambdaQuery(VendorConnection.class)
+                        .ne(VendorConnection::getTokenStatus, TokenStatus.EXPIRED));
 
         if (Instant.now().getEpochSecond() % 60 < 2) {
             log.info("[tick] activeConnections={}", activeConnections.size());
@@ -90,8 +92,9 @@ public class GlucosePollingScheduler {
     public void maintenance() {
         tokenExpiryMonitorService.checkAll();
 
-        List<VendorConnection> active = connectionRepository
-                .findByTokenStatusNot(TokenStatus.EXPIRED);
+        List<VendorConnection> active = connectionMapper.selectList(
+                Wrappers.lambdaQuery(VendorConnection.class)
+                        .ne(VendorConnection::getTokenStatus, TokenStatus.EXPIRED));
 
         for (VendorConnection conn : active) {
             try {
@@ -108,8 +111,10 @@ public class GlucosePollingScheduler {
     // ════════════════════════════════════════════════════════════════════════
 
     private void pollConnection(VendorConnection connection) {
-        List<MonitoredSubject> subjects = subjectRepository
-                .findByVendorConnectionIdAndIsActive(connection.getId(), true);
+        List<MonitoredSubject> subjects = subjectMapper.selectList(
+                Wrappers.lambdaQuery(MonitoredSubject.class)
+                        .eq(MonitoredSubject::getVendorConnectionId, connection.getId())
+                        .eq(MonitoredSubject::getIsActive, true));
         if (subjects.isEmpty()) {
             return;
         }
@@ -165,7 +170,7 @@ public class GlucosePollingScheduler {
             if (hasNew && latestReceiveTime != null) {
                 pollingState.onDataReceived(connection.getId(), latestReceiveTime);
                 connection.setLastSyncedAt(Instant.now());
-                connectionRepository.save(connection);
+                connectionMapper.updateById(connection);
             } else {
                 pollingState.onPollSuccessNoNewData(connection.getId());
             }
@@ -222,7 +227,7 @@ public class GlucosePollingScheduler {
             if (hasNew && latestReceiveTime != null) {
                 pollingState.onDataReceived(connection.getId(), latestReceiveTime);
                 connection.setLastSyncedAt(Instant.now());
-                connectionRepository.save(connection);
+                connectionMapper.updateById(connection);
             } else {
                 pollingState.onPollSuccessNoNewData(connection.getId());
             }

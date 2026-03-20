@@ -1,8 +1,9 @@
 package com.blueship581.hedwig.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.blueship581.hedwig.domain.entity.VendorConnection;
 import com.blueship581.hedwig.domain.enums.TokenStatus;
-import com.blueship581.hedwig.domain.repository.VendorConnectionRepository;
+import com.blueship581.hedwig.domain.mapper.VendorConnectionMapper;
 import com.blueship581.hedwig.vendor.client.VendorClient;
 import com.blueship581.hedwig.vendor.client.VendorClientFactory;
 import com.blueship581.hedwig.vendor.model.VendorTokenInfo;
@@ -22,14 +23,16 @@ public class TokenExpiryMonitorService {
 
     private static final long EXPIRING_SOON_DAYS = 7;
 
-    private final VendorConnectionRepository connectionRepository;
+    private final VendorConnectionMapper connectionMapper;
     private final VendorClientFactory vendorClientFactory;
 
     @Transactional
     public void checkAll() {
         // Check ACTIVE and EXPIRING_SOON connections
-        List<VendorConnection> connections = connectionRepository.findAllByTokenStatusIn(
-                List.of(TokenStatus.ACTIVE, TokenStatus.EXPIRING_SOON));
+        List<VendorConnection> connections = connectionMapper.selectList(
+                Wrappers.lambdaQuery(VendorConnection.class)
+                        .in(VendorConnection::getTokenStatus,
+                                List.of(TokenStatus.ACTIVE, TokenStatus.EXPIRING_SOON)));
 
         Instant now = Instant.now();
         Instant expiringThreshold = now.plus(EXPIRING_SOON_DAYS, ChronoUnit.DAYS);
@@ -61,7 +64,7 @@ public class TokenExpiryMonitorService {
             } else {
                 conn.setTokenStatus(TokenStatus.ACTIVE);
             }
-            connectionRepository.save(conn);
+            connectionMapper.updateById(conn);
         }
 
         // Also try to recover EXPIRED connections
@@ -74,14 +77,15 @@ public class TokenExpiryMonitorService {
      * locally-recorded expiry time if it was refreshed server-side.
      */
     private void recoverExpiredConnections() {
-        List<VendorConnection> expired = connectionRepository.findAllByTokenStatusIn(
-                List.of(TokenStatus.EXPIRED));
+        List<VendorConnection> expired = connectionMapper.selectList(
+                Wrappers.lambdaQuery(VendorConnection.class)
+                        .eq(VendorConnection::getTokenStatus, TokenStatus.EXPIRED));
 
         for (VendorConnection conn : expired) {
             if (tryRefreshToken(conn)) {
                 log.info("Recovered EXPIRED connection {} ({}) — token is still valid",
                         conn.getId(), conn.getVendorType());
-                connectionRepository.save(conn);
+                connectionMapper.updateById(conn);
             }
         }
     }

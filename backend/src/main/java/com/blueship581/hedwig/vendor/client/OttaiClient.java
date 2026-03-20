@@ -1,9 +1,11 @@
 package com.blueship581.hedwig.vendor.client;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.blueship581.hedwig.domain.enums.TrendDirection;
 import com.blueship581.hedwig.exception.VendorException;
 import com.blueship581.hedwig.vendor.model.*;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -26,7 +28,7 @@ public class OttaiClient implements VendorClient {
 
     private static final String BASE_URL = "https://api.ottai.com";
 
-    // arrowType integer → TrendDirection mapping per API spec
+    // arrowType integer -> TrendDirection mapping per API spec
     private static final Map<Integer, TrendDirection> ARROW_MAP = Map.of(
             1, TrendDirection.DOUBLE_UP,
             2, TrendDirection.SINGLE_UP,
@@ -38,12 +40,9 @@ public class OttaiClient implements VendorClient {
     );
 
     private final WebClient webClient;
-    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
-    public OttaiClient(WebClient.Builder webClientBuilder,
-                       com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
+    public OttaiClient(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.baseUrl(BASE_URL).build();
-        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -62,9 +61,9 @@ public class OttaiClient implements VendorClient {
                     StandardCharsets.UTF_8
             );
             log.info("[Ottai] JWT payload: {}", payloadJson);
-            JsonNode payload = objectMapper.readTree(payloadJson);
-            long expEpochSec = payload.get("exp").asLong();
-            String userId = payload.has("userId") ? payload.get("userId").asText() : null;
+            JSONObject payload = JSON.parseObject(payloadJson);
+            long expEpochSec = payload.getLongValue("exp");
+            String userId = payload.containsKey("userId") ? payload.getString("userId") : null;
             Instant expiresAt = Instant.ofEpochSecond(expEpochSec);
             boolean valid = Instant.now().isBefore(expiresAt);
 
@@ -98,37 +97,40 @@ public class OttaiClient implements VendorClient {
         log.info("[Ottai] getMonitoredSubjects: vendorUserId={}", vendorUserId);
         try {
             log.info("[Ottai] POST {}/link/application/server/invite/link/relatives", BASE_URL);
-            JsonNode response = webClient.post()
+            String body = webClient.post()
                     .uri("/link/application/server/invite/link/relatives")
                     .headers(h -> buildHeaders(h, accessToken, vendorUserId))
                     .bodyValue(Map.of("unit", "mmol_L"))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             log.info("[Ottai] getMonitoredSubjects response: {}", response);
             validateResponse(response, "getMonitoredSubjects");
 
             List<VendorSubject> subjects = new ArrayList<>();
-            for (JsonNode item : response.get("data")) {
-                String subjectUserId = item.has("fromUserId")
-                        ? String.valueOf(item.get("fromUserId").asLong()) : null;
-                String deviceId = item.has("fromUserDeviceId")
-                        ? String.valueOf(item.get("fromUserDeviceId").asLong()) : null;
-                String displayName = item.has("fromUserRemark")
-                        ? item.get("fromUserRemark").asText() : null;
+            JSONArray data = response.getJSONArray("data");
+            for (int i = 0; i < data.size(); i++) {
+                JSONObject item = data.getJSONObject(i);
+                String subjectUserId = item.containsKey("fromUserId")
+                        ? String.valueOf(item.getLongValue("fromUserId")) : null;
+                String deviceId = item.containsKey("fromUserDeviceId")
+                        ? String.valueOf(item.getLongValue("fromUserDeviceId")) : null;
+                String displayName = item.containsKey("fromUserRemark")
+                        ? item.getString("fromUserRemark") : null;
 
                 Double latestGlucose = null;
-                if (item.has("glucose") && !item.get("glucose").isNull()) {
+                if (item.containsKey("glucose") && item.get("glucose") != null) {
                     try {
-                        latestGlucose = Double.parseDouble(item.get("glucose").asText());
+                        latestGlucose = Double.parseDouble(item.getString("glucose"));
                     } catch (NumberFormatException ignored) {
                     }
                 }
 
                 Long sensorRestSeconds = null;
-                if (item.has("restDeviceTime") && !item.get("restDeviceTime").isNull()) {
-                    sensorRestSeconds = item.get("restDeviceTime").asLong();
+                if (item.containsKey("restDeviceTime") && item.get("restDeviceTime") != null) {
+                    sensorRestSeconds = item.getLongValue("restDeviceTime");
                 }
 
                 subjects.add(VendorSubject.builder()
@@ -160,36 +162,39 @@ public class OttaiClient implements VendorClient {
             String accessToken, String vendorUserId) {
         log.debug("[Ottai] getRealtimeFromRelatives: vendorUserId={}", vendorUserId);
         try {
-            JsonNode response = webClient.post()
+            String body = webClient.post()
                     .uri("/link/application/server/invite/link/relatives")
                     .headers(h -> buildHeaders(h, accessToken, vendorUserId))
                     .bodyValue(Map.of("unit", "mmol_L"))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             validateResponse(response, "getRealtimeFromRelatives");
 
             Map<String, VendorGlucoseData> result = new HashMap<>();
-            for (JsonNode item : response.get("data")) {
-                String subjectId = String.valueOf(item.get("fromUserId").asLong());
+            JSONArray data = response.getJSONArray("data");
+            for (int i = 0; i < data.size(); i++) {
+                JSONObject item = data.getJSONObject(i);
+                String subjectId = String.valueOf(item.getLongValue("fromUserId"));
 
-                if (!item.has("glucose") || item.get("glucose").isNull()
-                        || !item.has("receiveTime") || item.get("receiveTime").isNull()) {
+                if (!item.containsKey("glucose") || item.get("glucose") == null
+                        || !item.containsKey("receiveTime") || item.get("receiveTime") == null) {
                     continue;
                 }
 
                 double glucose;
                 try {
-                    glucose = Double.parseDouble(item.get("glucose").asText());
+                    glucose = Double.parseDouble(item.getString("glucose"));
                 } catch (NumberFormatException e) {
                     log.warn("[Ottai] Skipping subject {} with unparseable glucose: {}",
-                            subjectId, item.get("glucose").asText());
+                            subjectId, item.getString("glucose"));
                     continue;
                 }
 
-                long receiveTimeMs = item.get("receiveTime").asLong();
-                int arrowType = item.has("arrowType") ? item.get("arrowType").asInt() : 0;
+                long receiveTimeMs = item.getLongValue("receiveTime");
+                int arrowType = item.containsKey("arrowType") ? item.getIntValue("arrowType") : 0;
 
                 result.put(subjectId, VendorGlucoseData.builder()
                         .glucoseMmol(glucose)
@@ -226,7 +231,7 @@ public class OttaiClient implements VendorClient {
         try {
             log.info("[Ottai] GET {}/link/application/server/tag/search/queryMonitorBase?deviceId={}&userId={}&isOpen=1&timeType=2&unit=mmol_L",
                     BASE_URL, subject.getDeviceId(), subject.getSubjectId());
-            JsonNode response = webClient.get()
+            String body = webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/link/application/server/tag/search/queryMonitorBase")
                             .queryParam("deviceId", subject.getDeviceId())
@@ -237,23 +242,25 @@ public class OttaiClient implements VendorClient {
                             .build())
                     .headers(h -> buildHeaders(h, accessToken, vendorUserId))
                     .retrieve()
-                    .bodyToMono(JsonNode.class)
+                    .bodyToMono(String.class)
                     .block();
 
+            JSONObject response = JSON.parseObject(body);
             log.info("[Ottai] getHistoricalGlucose response code: {}",
-                    response != null ? response.path("code").asText() : "null");
+                    response != null ? response.getString("code") : "null");
             validateResponse(response, "getHistoricalGlucose");
 
-            JsonNode data = response.get("data");
-            JsonNode curveList = data.get("curveList");
-            if (curveList == null || curveList.isNull() || !curveList.isArray()) {
+            JSONObject data = response.getJSONObject("data");
+            JSONArray curveList = data.getJSONArray("curveList");
+            if (curveList == null || curveList.isEmpty()) {
                 return Collections.emptyList();
             }
 
             List<VendorGlucoseData> readings = new ArrayList<>();
-            for (JsonNode point : curveList) {
-                double glucoseMmol = point.get("glucose").asDouble();
-                long monitorTimeMs = point.get("monitorTime").asLong();
+            for (int i = 0; i < curveList.size(); i++) {
+                JSONObject point = curveList.getJSONObject(i);
+                double glucoseMmol = point.getDoubleValue("glucose");
+                long monitorTimeMs = point.getLongValue("monitorTime");
                 readings.add(VendorGlucoseData.builder()
                         .glucoseMmol(glucoseMmol)
                         .readingTime(Instant.ofEpochMilli(monitorTimeMs))
@@ -288,13 +295,13 @@ public class OttaiClient implements VendorClient {
         return ARROW_MAP.getOrDefault(arrowType, TrendDirection.NONE);
     }
 
-    private void validateResponse(JsonNode response, String operation) {
+    private void validateResponse(JSONObject response, String operation) {
         if (response == null) {
             throw new VendorException("欧泰接口返回为空：" + localizeOperation(operation));
         }
-        JsonNode codeNode = response.get("code");
-        if (codeNode == null || !"OK".equals(codeNode.asText())) {
-            String msg = response.has("msg") ? response.get("msg").asText() : "未知错误";
+        String code = response.getString("code");
+        if (code == null || !"OK".equals(code)) {
+            String msg = response.containsKey("msg") ? response.getString("msg") : "未知错误";
             throw new VendorException("欧泰接口返回异常（" + localizeOperation(operation) + "）：" + msg);
         }
     }
@@ -317,15 +324,15 @@ public class OttaiClient implements VendorClient {
             return null;
         }
         try {
-            JsonNode root = objectMapper.readTree(body);
-            if (root.hasNonNull("msg")) {
-                return root.get("msg").asText();
+            JSONObject root = JSON.parseObject(body);
+            if (root.containsKey("msg") && root.getString("msg") != null) {
+                return root.getString("msg");
             }
-            if (root.hasNonNull("message")) {
-                return root.get("message").asText();
+            if (root.containsKey("message") && root.getString("message") != null) {
+                return root.getString("message");
             }
-            if (root.hasNonNull("error")) {
-                return root.get("error").asText();
+            if (root.containsKey("error") && root.getString("error") != null) {
+                return root.getString("error");
             }
         } catch (Exception ignored) {
         }

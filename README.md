@@ -13,8 +13,7 @@
 
 - 前端在构建时直接打进 Spring Boot `jar`
 - 服务默认走 HTTP 单端口，无需证书也能先跑起来
-- 默认使用内置 H2 文件数据库，单机可直接启动
-- 如需 PostgreSQL，只需要改环境变量
+- 使用 PostgreSQL 数据库
 - 不再依赖 Docker、Nginx 和镜像拉取
 
 推荐流程：
@@ -27,8 +26,8 @@
 
 ```text
 hedwig/
-├── backend/                  # Spring Boot 后端
-├── frontend/                 # Rust Leptos WASM 前端
+├── backend/                  # Spring Boot 后端 (MyBatis-Plus + FastJSON2)
+├── frontend-react/           # React 18 + TypeScript + Ant Design 5 前端
 ├── deploy/                   # 部署环境变量模板
 ├── scripts/                  # 构建、启动、systemd 安装脚本
 └── doc/                      # 厂商 API 相关文档
@@ -40,9 +39,9 @@ hedwig/
 
 - Java 17+
 - Maven 3.9+
-- Rust stable
-- Trunk
-- wasm32-unknown-unknown 目标
+- Node.js 18+
+- npm 9+
+- PostgreSQL 15+
 
 ### 启动后端
 
@@ -54,11 +53,12 @@ JWT_SECRET=dev-only-secret-change-me SERVER_PORT=3000 mvn spring-boot:run
 ### 启动前端
 
 ```bash
-cd frontend
-trunk serve
+cd frontend-react
+npm install
+npm run dev
 ```
 
-前端默认访问 `http://localhost:8080`，并把 `/api/` 代理到 `http://127.0.0.1:3000`。
+前端默认访问 `http://localhost:5173`，并把 `/api/` 代理到 `http://127.0.0.1:3000`。
 
 ## 一键构建发布包
 
@@ -132,29 +132,23 @@ sudo ./install-systemd.sh
 | `SERVER_ADDRESS` | `0.0.0.0` | 监听地址 |
 | `SERVER_PORT` | `8080` | HTTP 端口 |
 | `TZ` | `Asia/Shanghai` | 时区 |
-| `APP_DATA_DIR` | `./data` | 内置数据库和运行数据目录 |
 | `JWT_SECRET` | 自动生成/示例值 | JWT 密钥，生产环境务必修改 |
 | `JWT_EXPIRATION` | `86400000` | JWT 过期时间（毫秒） |
 | `NIGHTSCOUT_ENABLED` | `false` | 是否启用 Nightscout |
 | `NIGHTSCOUT_URL` | 空 | Nightscout 地址 |
 | `NIGHTSCOUT_API_SECRET` | 空 | Nightscout API Secret |
-| `DB_URL` | 内置 H2 文件库 | 可选改为 PostgreSQL |
-| `DB_DRIVER_CLASS_NAME` | `org.h2.Driver` | JDBC 驱动类 |
-| `DB_USERNAME` | `sa` | 数据库用户名 |
-| `DB_PASSWORD` | 空 | 数据库密码 |
-| `JPA_DIALECT` | `org.hibernate.dialect.H2Dialect` | Hibernate 方言 |
-| `DDL_AUTO` | `update` | 表结构策略 |
+| `DB_URL` | `jdbc:postgresql://127.0.0.1:5432/hedwig` | PostgreSQL JDBC URL |
+| `DB_USERNAME` | `hedwig` | 数据库用户名 |
+| `DB_PASSWORD` | `hedwig` | 数据库密码 |
 
-## PostgreSQL 可选切换
+## PostgreSQL 配置
 
-如果你想改用 PostgreSQL，只需要在 `app.env` 中配置：
+在 `app.env` 中配置数据库连接：
 
 ```bash
 DB_URL=jdbc:postgresql://127.0.0.1:5432/hedwig
-DB_DRIVER_CLASS_NAME=org.postgresql.Driver
 DB_USERNAME=postgres
 DB_PASSWORD=change-me
-JPA_DIALECT=org.hibernate.dialect.PostgreSQLDialect
 ```
 
 ## API 接口
