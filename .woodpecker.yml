@@ -20,5 +20,35 @@ steps:
       - chmod 600 ~/.ssh/id_ed25519
       - ssh-keyscan -p 22 100.109.92.68 >> ~/.ssh/known_hosts 2>/dev/null
       - scp -o StrictHostKeyChecking=no build/hedwig.jar deploy@100.109.92.68:/opt/hedwig/app.jar.new
-      - ssh deploy@100.109.92.68 "set -e; cd /opt/hedwig; sha256sum app.jar.new; mv app.jar.new app.jar; sudo systemctl restart hedwig; sudo systemctl is-active hedwig; sha256sum app.jar"
+      - |
+        ssh deploy@100.109.92.68 '
+          set -e
+          cd /opt/hedwig
+          sha256sum app.jar.new
+          SYSTEMCTL_PATH="$(command -v systemctl)"
+          if [[ -z "$SYSTEMCTL_PATH" ]]; then
+            echo "ERROR: systemctl not found on server." >&2
+            exit 1
+          fi
+          SUDO_CHECK_ERR="$(mktemp)"
+          if ! sudo -n "$SYSTEMCTL_PATH" is-active hedwig >/dev/null 2>"$SUDO_CHECK_ERR"; then
+            if grep -Eq "password is required|a terminal is required|not allowed to execute" "$SUDO_CHECK_ERR"; then
+              echo "ERROR: deploy user needs passwordless sudo for $SYSTEMCTL_PATH." >&2
+              echo "Run on server: sudo visudo -f /etc/sudoers.d/hedwig-deploy" >&2
+              echo "Then add: deploy ALL=(root) NOPASSWD: $SYSTEMCTL_PATH restart hedwig, $SYSTEMCTL_PATH is-active hedwig" >&2
+              rm -f "$SUDO_CHECK_ERR"
+              exit 1
+            fi
+          fi
+          rm -f "$SUDO_CHECK_ERR"
+          if [[ ! -f app.jar ]]; then
+            echo "ERROR: current app.jar missing; refusing to replace blindly." >&2
+            exit 1
+          fi
+          cp app.jar app.jar.bak
+          mv app.jar.new app.jar
+          sudo -n "$SYSTEMCTL_PATH" restart hedwig
+          sudo -n "$SYSTEMCTL_PATH" is-active hedwig
+          sha256sum app.jar
+        '
     secrets: [ssh_key]

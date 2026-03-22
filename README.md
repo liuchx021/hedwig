@@ -116,6 +116,24 @@ SKIP_TESTS=1 ./scripts/build-release.sh
 1. 将发布包上传到服务器并解压到 `/opt/hedwig/`
 2. 配置环境变量：`cp app.env.example app.env && vim app.env`
 3. 安装 systemd 服务：`./install-systemd.sh`
+4. 如果通过 Woodpecker 的 `deploy` 用户自动发布，需要给它最小化的免密 sudo 权限，否则 CI 无法重启服务：
+
+```bash
+command -v systemctl
+sudo visudo -f /etc/sudoers.d/hedwig-deploy
+```
+
+把实际输出路径代入后填入，例如很多 Ubuntu 是 `/usr/bin/systemctl`：
+
+```text
+deploy ALL=(root) NOPASSWD: /usr/bin/systemctl restart hedwig, /usr/bin/systemctl is-active hedwig
+```
+
+然后校验：
+
+```bash
+sudo visudo -cf /etc/sudoers.d/hedwig-deploy
+```
 
 ### 常用命令
 
