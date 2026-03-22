@@ -1,0 +1,29 @@
+# macOS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.iml
+.claude/
+
+# Logs / runtime
+*.log
+*.pid
+
+# Backend build output
+backend/target/
+
+# Frontend build output
+frontend-react/node_modules/
+frontend-react/dist/
+frontend-react/.vite/
+frontend-react/tsconfig.tsbuildinfo
+
+# Local runtime data
+data/*.mv.db
+data/*.trace.db
+data/*.lock.db
+doc/
+deploy/
+
+# Release output
+release/

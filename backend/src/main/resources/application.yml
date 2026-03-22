@@ -2,7 +2,7 @@ spring:
   application:
     name: hedwig
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:15432/hedwig}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/hedwig}
     driver-class-name: org.postgresql.Driver
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
