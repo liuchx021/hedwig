@@ -27,3 +27,6 @@ deploy/
 
 # Release output
 release/
+
+# Local docs
+DEV-WORKFLOW.md

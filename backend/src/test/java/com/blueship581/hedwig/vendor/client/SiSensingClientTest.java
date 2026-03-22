@@ -1,5 +1,6 @@
 package com.blueship581.hedwig.vendor.client;
 
+import com.blueship581.hedwig.domain.enums.TrendDirection;
 import com.blueship581.hedwig.exception.VendorException;
 import com.blueship581.hedwig.vendor.model.VendorGlucoseData;
 import com.blueship581.hedwig.vendor.model.VendorLoginRequest;
@@ -182,6 +183,81 @@ class SiSensingClientTest {
 
         assertEquals(1, readings.size());
         assertEquals(6.4, readings.get(0).getGlucoseMmol());
+        assertEquals(TrendDirection.SINGLE_UP, readings.get(0).getTrendDirection());
+    }
+
+    @Test
+    void getRealtimeFromFollowListPrefersBloodGlucoseTrend() {
+        SiSensingClient client = new SiSensingClient(builderFor(request -> {
+            String path = request.url().getPath();
+            if (path.endsWith("/lite-sense-app/follow/list")) {
+                return okJson("""
+                        {
+                          "code": 200,
+                          "success": true,
+                          "data": {
+                            "records": [
+                              {
+                                "id": "follow-1",
+                                "followedDeviceGlucoseDataPO": {
+                                  "latestGlucoseValue": 6.8,
+                                  "latestGlucoseTime": 1773927834250,
+                                  "bloodGlucoseTrend": -2,
+                                  "s": 0
+                                }
+                              }
+                            ]
+                          }
+                        }
+                        """);
+            }
+            return Mono.error(new IllegalStateException("Unexpected path: " + path));
+        }));
+
+        VendorGlucoseData reading = client.getRealtimeFromFollowList("plain-token-value").get("follow-1");
+
+        assertEquals(6.8, reading.getGlucoseMmol());
+        assertEquals(TrendDirection.DOUBLE_DOWN, reading.getTrendDirection());
+    }
+
+    @Test
+    void getHistoricalGlucoseReadsBloodGlucoseTrendWhenPresent() {
+        SiSensingClient client = new SiSensingClient(builderFor(request -> {
+            String path = request.url().getPath();
+            if (path.endsWith("/lite-sense-app/follow/glucose")) {
+                return okJson("""
+                        {
+                          "code": 200,
+                          "success": true,
+                          "data": {
+                            "glucoseDataList": [
+                              {
+                                "glucoseInfos": [
+                                  {
+                                    "effective": true,
+                                    "v": 6.4,
+                                    "t": 1773927834250,
+                                    "bloodGlucoseTrend": -1,
+                                    "s": 0
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                        """);
+            }
+            return Mono.error(new IllegalStateException("Unexpected path: " + path));
+        }));
+
+        List<VendorGlucoseData> readings = client.getHistoricalGlucose(
+                "plain-token-value",
+                "user-1",
+                VendorSubject.builder().subjectId("follow-1").build()
+        );
+
+        assertEquals(1, readings.size());
+        assertEquals(TrendDirection.FORTY_FIVE_DOWN, readings.get(0).getTrendDirection());
     }
 
     private WebClient.Builder builderFor(ExchangeFunction exchangeFunction) {

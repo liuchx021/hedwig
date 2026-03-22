@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.blueship581.hedwig.domain.entity.GlucoseReading;
 import com.blueship581.hedwig.domain.entity.MonitoredSubject;
 import com.blueship581.hedwig.domain.entity.VendorConnection;
+import com.blueship581.hedwig.domain.enums.TrendDirection;
 import com.blueship581.hedwig.domain.mapper.GlucoseReadingMapper;
 import com.blueship581.hedwig.domain.mapper.MonitoredSubjectMapper;
 import com.blueship581.hedwig.domain.mapper.VendorConnectionMapper;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -121,7 +123,9 @@ public class GlucoseService {
 
     /**
      * Save a glucose reading obtained externally (e.g. from the Ottai relatives endpoint)
-     * if it doesn't already exist. Returns true when new data was persisted.
+     * if it doesn't already exist. If the same readingTime already exists, refresh
+     * the stored payload so corrected trend/value data can replace stale vendor data.
+     * Returns true only when a brand new row was persisted.
      */
     @Transactional
     public boolean saveIfNewReading(Long subjectId, VendorGlucoseData data) {
@@ -200,20 +204,39 @@ public class GlucoseService {
     }
 
     private boolean saveIfNew(Long subjectId, VendorGlucoseData data) {
-        boolean exists = readingMapper.exists(
-                Wrappers.lambdaQuery(GlucoseReading.class)
-                        .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
-                        .eq(GlucoseReading::getReadingTime, data.getReadingTime()));
-        if (exists) {
+        double mgdl = glucoseConverter.mmolToMgdl(data.getGlucoseMmol());
+        TrendDirection trendDirection = data.getTrendDirection() == null
+                ? TrendDirection.NONE
+                : data.getTrendDirection();
+        GlucoseReading existing = readingMapper.selectList(
+                        Wrappers.lambdaQuery(GlucoseReading.class)
+                                .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                                .eq(GlucoseReading::getReadingTime, data.getReadingTime())
+                                .last("LIMIT 1"))
+                .stream()
+                .findFirst()
+                .orElse(null);
+        if (existing != null) {
+            boolean changed = !Objects.equals(existing.getGlucoseMmol(), data.getGlucoseMmol())
+                    || !Objects.equals(existing.getGlucoseMgdl(), mgdl)
+                    || existing.getTrendDirection() != trendDirection;
+            if (!changed) {
+                return false;
+            }
+
+            existing.setGlucoseMmol(data.getGlucoseMmol());
+            existing.setGlucoseMgdl(mgdl);
+            existing.setTrendDirection(trendDirection);
+            existing.setPushedToNightscout(false);
+            readingMapper.updateById(existing);
             return false;
         }
 
-        double mgdl = glucoseConverter.mmolToMgdl(data.getGlucoseMmol());
         GlucoseReading reading = GlucoseReading.builder()
                 .monitoredSubjectId(subjectId)
                 .glucoseMmol(data.getGlucoseMmol())
                 .glucoseMgdl(mgdl)
-                .trendDirection(data.getTrendDirection())
+                .trendDirection(trendDirection)
                 .readingTime(data.getReadingTime())
                 .pushedToNightscout(false)
                 .build();

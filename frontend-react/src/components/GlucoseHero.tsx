@@ -14,7 +14,25 @@ interface GlucoseHeroProps {
   vendorType: string;
 }
 
-const GlucoseHero: React.FC<GlucoseHeroProps> = ({ subjectId, subjectName, vendorType }) => {
+const statusBg: Record<string, { bg: string; border: string; glow: string }> = {
+  normal: {
+    bg: 'rgba(78, 205, 196, 0.06)',
+    border: 'rgba(78, 205, 196, 0.18)',
+    glow: 'rgba(78, 205, 196, 0.08)',
+  },
+  high: {
+    bg: 'rgba(224, 92, 92, 0.06)',
+    border: 'rgba(224, 92, 92, 0.18)',
+    glow: 'rgba(224, 92, 92, 0.08)',
+  },
+  low: {
+    bg: 'rgba(224, 168, 75, 0.06)',
+    border: 'rgba(224, 168, 75, 0.18)',
+    glow: 'rgba(224, 168, 75, 0.08)',
+  },
+};
+
+const GlucoseHero: React.FC<GlucoseHeroProps> = ({ subjectId, subjectName }) => {
   const navigate = useNavigate();
   const [reading, setReading] = useState<GlucoseReading | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,18 +54,25 @@ const GlucoseHero: React.FC<GlucoseHeroProps> = ({ subjectId, subjectName, vendo
     const ms = parseTimestampMs(reading.readingTime);
     if (ms === null) return '';
     const diffMin = Math.floor((Date.now() - ms) / 60_000);
-    if (diffMin < 1) return '\u521a\u521a';
-    if (diffMin < 60) return `${diffMin} \u5206\u949f\u524d`;
+    if (diffMin < 1) return '刚刚';
+    if (diffMin < 60) return `${diffMin} 分钟前`;
     const hours = Math.floor(diffMin / 60);
-    return `${hours} \u5c0f\u65f6\u524d`;
+    return `${hours} 小时前`;
   };
 
   const cls = reading ? glucoseClass(reading.glucoseMmol) : 'normal';
+  const theme = statusBg[cls];
 
   if (loading) {
     return (
-      <div className="glucose-hero glucose-hero--normal">
-        <Skeleton active paragraph={{ rows: 2 }} />
+      <div
+        className="dashboard-hero-card"
+        style={{
+          background: statusBg.normal.bg,
+          border: `1px solid ${statusBg.normal.border}`,
+        }}
+      >
+        <Skeleton active paragraph={{ rows: 1 }} title={{ width: 120 }} />
       </div>
     );
   }
@@ -55,47 +80,53 @@ const GlucoseHero: React.FC<GlucoseHeroProps> = ({ subjectId, subjectName, vendo
   if (!reading) {
     return (
       <div
-        className="glucose-hero glucose-hero--normal"
-        style={{ cursor: 'pointer' }}
+        className="dashboard-hero-card"
+        style={{
+          background: statusBg.normal.bg,
+          border: `1px solid ${statusBg.normal.border}`,
+          cursor: 'pointer',
+        }}
         onClick={() => navigate(`/glucose/${subjectId}`)}
       >
-        <Text type="secondary">{subjectName} - \u6682\u65e0\u6570\u636e</Text>
+        <Text type="secondary" style={{ fontSize: 15 }}>{subjectName} - 暂无数据</Text>
       </div>
     );
   }
 
+  const color = glucoseColor(reading.glucoseMmol);
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-      className={`glucose-hero glucose-hero--${cls}`}
-      style={{ cursor: 'pointer' }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="dashboard-hero-card"
+      style={{
+        background: theme.bg,
+        border: `1px solid ${theme.border}`,
+        borderLeft: `4px solid ${color}`,
+        boxShadow: `0 0 40px ${theme.glow}, 0 2px 8px rgba(0,0,0,0.1)`,
+        cursor: 'pointer',
+      }}
       onClick={() => navigate(`/glucose/${subjectId}`)}
     >
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <span
-          className="glucose-value"
-          style={{
-            fontFamily: 'var(--font-mono)',
-            color: glucoseColor(reading.glucoseMmol),
-          }}
-        >
+      {/* Main value row */}
+      <div className="dashboard-hero-value-row">
+        <span className="dashboard-hero-number" style={{ color }}>
           {reading.glucoseMmol.toFixed(1)}
         </span>
-        <span className="glucose-unit">mmol/L</span>
-        <span
-          className="glucose-trend"
-          style={{ color: glucoseColor(reading.glucoseMmol) }}
-        >
+        <span className="dashboard-hero-trend" style={{ color }}>
           {trendArrow(reading.trendDirection)}
         </span>
+        <span className="dashboard-hero-unit">mmol/L</span>
       </div>
-      <div style={{ marginTop: 4 }}>
-        <Text type="secondary">{subjectName}</Text>
-        <Text type="secondary" style={{ marginLeft: 12 }}>
-          {'\u6700\u540e\u66f4\u65b0 '}{relativeTime()}
-        </Text>
+
+      {/* Subject info row */}
+      <div className="dashboard-hero-meta">
+        <span className="dashboard-hero-dot" style={{ background: color }} />
+        {subjectName}
+        <span className="dashboard-hero-sep">·</span>
+        {relativeTime()}
       </div>
     </motion.div>
   );

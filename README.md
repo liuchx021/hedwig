@@ -64,6 +64,10 @@ npm run dev
 
 采用**本地构建 + CI 部署**模式：本地执行构建，产物 `build/hedwig.jar` 提交到 git，Woodpecker CI 只负责 SCP 部署到服务器。这样避免了低配服务器上构建 OOM 的问题。
 
+注意：当前 CI 不会在服务器上重新构建源码，它只会上传仓库里的 `build/hedwig.jar`。
+如果你改了 `backend/` 或 `frontend-react/` 但没有重新生成并提交新的 `build/hedwig.jar`，流水线以前会“部署成功但线上代码不变”；现在 CI 会直接失败提醒。
+同样，`deploy/`、`scripts/run-http.sh`、`scripts/install-systemd.sh` 这类运行时文件目前不会被自动部署到服务器。
+
 ### 工作流
 
 ```
@@ -84,11 +88,11 @@ git bd
 
 # 方式二：手动执行
 ./scripts/build-and-stage.sh
-git add build/
 git push
 ```
 
-`build-and-stage.sh` 会依次执行：前端 `npm ci && npm run build` → 后端 `mvn clean package` → 拷贝 jar 到 `build/hedwig.jar`。
+`build-and-stage.sh` 会依次执行：前端 `npm ci && npm run build` → 后端 `mvn clean package` → 拷贝 jar 到 `build/hedwig.jar` → 自动 `git add` 当前工作区里准备发布的源码改动和 `build/hedwig.jar`。
+Woodpecker 在部署前会校验当前提交是否遗漏了 `build/hedwig.jar`。
 
 ### 完整发布包（可选）
 
@@ -105,7 +109,7 @@ SKIP_TESTS=1 ./scripts/build-release.sh
 
 ## 服务器部署
 
-服务器上通过 systemd 管理 Hedwig 服务。CI Pipeline 会自动将 `build/hedwig.jar` SCP 到服务器并重启服务。
+服务器上通过 systemd 管理 Hedwig 服务。CI Pipeline 会自动将 `build/hedwig.jar` SCP 到服务器并重启服务，同时输出本地和远端 jar 的 SHA-256，方便确认这次上线的确是新产物。
 
 ### 首次部署
 

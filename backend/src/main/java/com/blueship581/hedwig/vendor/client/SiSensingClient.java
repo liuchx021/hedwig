@@ -286,14 +286,7 @@ public class SiSensingClient implements VendorClient {
                     continue; // no timestamp = unusable
                 }
 
-                // Extract trend if available
-                int trendRaw = 0;
-                for (String field : List.of("trend", "s", "arrowType")) {
-                    if (glucoseData.containsKey(field) && glucoseData.get(field) != null) {
-                        trendRaw = glucoseData.getIntValue(field, 0);
-                        break;
-                    }
-                }
+                int trendRaw = extractTrendRaw(glucoseData);
 
                 result.put(followId, VendorGlucoseData.builder()
                         .glucoseMmol(glucose)
@@ -369,7 +362,7 @@ public class SiSensingClient implements VendorClient {
                 }
                 double glucoseMmol = point.getDoubleValue("v");
                 long timestampMs = point.getLongValue("t");
-                int trendRaw = point.containsKey("s") ? point.getIntValue("s", 0) : 0;
+                int trendRaw = extractTrendRaw(point);
                 TrendDirection trend = mapSiSensingTrend(trendRaw);
 
                 readings.add(VendorGlucoseData.builder()
@@ -501,6 +494,18 @@ public class SiSensingClient implements VendorClient {
         return null;
     }
 
+    private int extractTrendRaw(JSONObject node) {
+        if (node == null) {
+            return 0;
+        }
+        for (String field : List.of("bloodGlucoseTrend", "trend", "s", "arrowType")) {
+            if (node.containsKey(field) && node.get(field) != null) {
+                return node.getIntValue(field, 0);
+            }
+        }
+        return 0;
+    }
+
     private String normalizeCredential(String value) {
         if (value == null) {
             return null;
@@ -526,12 +531,15 @@ public class SiSensingClient implements VendorClient {
     }
 
     /**
-     * SiSensing trend mapping: -1=SingleDown, 0=Flat, 1=SingleUp
+     * SiSensing trend mapping: 2=DoubleUp, 1=SingleUp, 0=Flat,
+     * -1=FortyFiveDown, -2=DoubleDown.
      */
     private TrendDirection mapSiSensingTrend(int s) {
         return switch (s) {
-            case -1 -> TrendDirection.SINGLE_DOWN;
+            case 2 -> TrendDirection.DOUBLE_UP;
             case 1 -> TrendDirection.SINGLE_UP;
+            case -1 -> TrendDirection.FORTY_FIVE_DOWN;
+            case -2 -> TrendDirection.DOUBLE_DOWN;
             default -> TrendDirection.FLAT;
         };
     }

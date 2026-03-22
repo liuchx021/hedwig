@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Typography, Row, Col, Skeleton, Empty, message } from 'antd';
+import { Button, Skeleton, Empty, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -9,7 +9,13 @@ import VendorCard from '../components/VendorCard';
 import AlertBanner from '../components/AlertBanner';
 import GlucoseHero from '../components/GlucoseHero';
 
-const { Title, Paragraph } = Typography;
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 6) return '夜深了';
+  if (h < 12) return '早上好';
+  if (h < 18) return '下午好';
+  return '晚上好';
+}
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -37,93 +43,142 @@ const DashboardPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await deleteConnection(id);
-      message.success('\u5df2\u65ad\u5f00\u8fde\u63a5');
+      message.success('已断开连接');
       fetchConnections();
     } catch (e: any) {
       message.error(e.message);
     }
   };
 
+  const heroConnections = connections.filter((c) => c.primarySubjectId != null);
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 24,
-          flexWrap: 'wrap',
-          gap: 12,
-        }}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="dashboard-page"
+    >
+      {/* ── Page header ── */}
+      <motion.div
+        className="dashboard-header"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.05 }}
       >
         <div>
-          <Title level={3} style={{ margin: 0 }}>
-            {'\u4eea\u8868\u76d8'}
-          </Title>
-          <Paragraph type="secondary" style={{ margin: 0 }}>
-            {'\u7ba1\u7406\u60a8\u7684\u8840\u7cd6\u76d1\u6d4b\u8bbe\u5907\u8fde\u63a5'}
-          </Paragraph>
+          <h2 className="dashboard-greeting">{getGreeting()}</h2>
+          <p className="dashboard-greeting-sub">血糖监测一览</p>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate('/connect')}>
-          {'\u6dfb\u52a0\u8bbe\u5907'}
+        <Button
+          type="default"
+          icon={<PlusOutlined />}
+          onClick={() => navigate('/connect')}
+          className="dashboard-add-btn"
+        >
+          添加设备
         </Button>
-      </div>
+      </motion.div>
 
-      {/* Glucose Hero Section */}
-      {!loading && connections.filter(c => c.primarySubjectId).length > 0 && (
-        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-          {connections
-            .filter((c) => c.primarySubjectId != null)
-            .map((c) => (
-              <Col xs={24} sm={12} key={c.id}>
-                <GlucoseHero
-                  subjectId={c.primarySubjectId!}
-                  subjectName={c.primarySubjectName ?? `对象 ${c.primarySubjectId}`}
-                  vendorType={c.vendorType}
-                />
-              </Col>
-            ))}
-        </Row>
+      {/* ── Loading skeleton ── */}
+      {loading && (
+        <div className="dashboard-skeleton-wrap">
+          <div className="dashboard-panel">
+            <Skeleton active paragraph={{ rows: 2 }} title={{ width: 160 }} />
+          </div>
+          <div className="dashboard-panel">
+            <Skeleton active paragraph={{ rows: 4 }} title={{ width: 100 }} />
+          </div>
+        </div>
       )}
 
-      {!loading && connections.length > 0 && <AlertBanner connections={connections} />}
+      {/* ── Error state ── */}
+      {!loading && error && (
+        <div className="dashboard-panel" style={{ textAlign: 'center', padding: 48 }}>
+          <Empty
+            description={`加载失败：${error}`}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        </div>
+      )}
 
-      {loading ? (
-        <Row gutter={[16, 16]}>
-          {[1, 2].map((i) => (
-            <Col xs={24} sm={12} lg={8} key={i}>
-              <Skeleton active paragraph={{ rows: 5 }} />
-            </Col>
-          ))}
-        </Row>
-      ) : error ? (
-        <Empty
-          description={`\u52a0\u8f7d\u5931\u8d25\uff1a${error}`}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      ) : connections.length === 0 ? (
+      {/* ── Empty state ── */}
+      {!loading && !error && connections.length === 0 && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.3 }}
-          style={{ textAlign: 'center', padding: '60px 0' }}
+          transition={{ duration: 0.4 }}
+          className="dashboard-panel dashboard-empty-panel"
         >
-          <div style={{ fontSize: 64, marginBottom: 16 }}>{'\uD83E\uDD89'}</div>
-          <Paragraph type="secondary" style={{ fontSize: 16 }}>
-            {'\u8fd8\u6ca1\u6709\u8fde\u63a5\u4efb\u4f55\u8bbe\u5907'}
-          </Paragraph>
-          <Button type="primary" size="large" onClick={() => navigate('/connect')}>
-            {'\u6dfb\u52a0\u7b2c\u4e00\u4e2a\u8bbe\u5907'}
+          <div className="dashboard-empty-owl">🦉</div>
+          <h3 className="dashboard-empty-title">还没有连接任何设备</h3>
+          <p className="dashboard-empty-desc">连接您的 CGM 设备，开始实时监测血糖数据</p>
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/connect')}
+          >
+            添加第一个设备
           </Button>
         </motion.div>
-      ) : (
-        <Row gutter={[16, 16]}>
-          {connections.map((conn, idx) => (
-            <Col xs={24} sm={12} lg={8} key={conn.id}>
-              <VendorCard connection={conn} onDelete={handleDelete} index={idx} />
-            </Col>
-          ))}
-        </Row>
+      )}
+
+      {/* ── Main content ── */}
+      {!loading && !error && connections.length > 0 && (
+        <>
+          {/* Glucose hero cards */}
+          {heroConnections.length > 0 && (
+            <motion.section
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="dashboard-section"
+            >
+              <div className="dashboard-hero-grid">
+                {heroConnections.map((c) => (
+                  <GlucoseHero
+                    key={c.id}
+                    subjectId={c.primarySubjectId!}
+                    subjectName={c.primarySubjectName ?? `对象 ${c.primarySubjectId}`}
+                    vendorType={c.vendorType}
+                  />
+                ))}
+              </div>
+            </motion.section>
+          )}
+
+          {/* Alert banner */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <AlertBanner connections={connections} />
+          </motion.div>
+
+          {/* Device connection panel */}
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.25 }}
+            className="dashboard-section"
+          >
+            <div className="dashboard-panel">
+              <h4 className="dashboard-panel-title">设备连接</h4>
+              <div className="dashboard-device-list">
+                {connections.map((conn, idx) => (
+                  <VendorCard
+                    key={conn.id}
+                    connection={conn}
+                    onDelete={handleDelete}
+                    index={idx}
+                  />
+                ))}
+              </div>
+            </div>
+          </motion.section>
+        </>
       )}
     </motion.div>
   );
