@@ -25,7 +25,7 @@ steps:
     commands:
       - apk add --no-cache openssh-client
       - mkdir -p ~/.ssh
-      - echo "$SSH_KEY" > ~/.ssh/id_ed25519
+      - echo "$SSH_KEY" | base64 -d > ~/.ssh/id_ed25519
       - chmod 600 ~/.ssh/id_ed25519
       - ssh-keyscan -p 22 100.109.92.68 >> ~/.ssh/known_hosts 2>/dev/null
       - scp -o StrictHostKeyChecking=no backend/target/hedwig.jar deploy@100.109.92.68:/opt/hedwig/app.jar.new
