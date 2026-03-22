@@ -1,0 +1,31 @@
+when:
+  branch: develop
+  event: push
+
+steps:
+  - name: build-frontend
+    image: node:20-alpine
+    commands:
+      - cd frontend-react
+      - npm ci --prefer-offline
+      - npm run build
+
+  - name: build-backend
+    image: maven:3.9-eclipse-temurin-17-alpine
+    environment:
+      MAVEN_OPTS: "-Xmx512m"
+    commands:
+      - cd backend
+      - mvn clean package -DskipTests -B -q
+
+  - name: deploy
+    image: alpine:3
+    commands:
+      - apk add --no-cache openssh-client
+      - mkdir -p ~/.ssh
+      - echo "$SSH_KEY" > ~/.ssh/id_ed25519
+      - chmod 600 ~/.ssh/id_ed25519
+      - ssh-keyscan -p 22 100.109.92.68 >> ~/.ssh/known_hosts 2>/dev/null
+      - scp -o StrictHostKeyChecking=no backend/target/hedwig.jar deploy@100.109.92.68:/opt/hedwig/app.jar.new
+      - ssh deploy@100.109.92.68 "cd /opt/hedwig && mv app.jar.new app.jar && sudo systemctl restart hedwig"
+    secrets: [ssh_key]
