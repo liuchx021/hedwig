@@ -5,6 +5,8 @@ when:
 steps:
   - name: build-frontend
     image: node:20-alpine
+    environment:
+      NODE_OPTIONS: "--max-old-space-size=1024"
     commands:
       - cd frontend-react
       - npm ci --prefer-offline
