@@ -6,8 +6,7 @@ spring:
     password: hedwig
   sql:
     init:
-      mode: always
-      schema-locations: classpath:db/schema.sql
+      mode: never
 
 mybatis-plus:
   global-config:

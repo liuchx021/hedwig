@@ -12,6 +12,7 @@ import com.blueship581.hedwig.dto.GlucoseReadingDto;
 import com.blueship581.hedwig.dto.SyncResultDto;
 import com.blueship581.hedwig.exception.ResourceNotFoundException;
 import com.blueship581.hedwig.util.GlucoseConverter;
+import com.blueship581.hedwig.util.GlucoseTrendCalculator;
 import com.blueship581.hedwig.vendor.client.VendorClient;
 import com.blueship581.hedwig.vendor.client.VendorClientFactory;
 import com.blueship581.hedwig.vendor.model.VendorGlucoseData;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -37,6 +39,7 @@ public class GlucoseService {
     private final VendorConnectionMapper connectionMapper;
     private final VendorClientFactory vendorClientFactory;
     private final GlucoseConverter glucoseConverter;
+    private final LatestSubjectDataCache latestSubjectDataCache;
 
     @Transactional
     public GlucoseReadingDto fetchLatest(Long connectionId, Long subjectId) {
@@ -52,14 +55,7 @@ public class GlucoseService {
                 connection.getAccessToken(), connection.getVendorUserId(), vendorSubject);
 
         saveIfNew(subject.getId(), latest);
-        GlucoseReading reading = readingMapper.selectList(
-                        Wrappers.lambdaQuery(GlucoseReading.class)
-                                .eq(GlucoseReading::getMonitoredSubjectId, subject.getId())
-                                .orderByDesc(GlucoseReading::getReadingTime)
-                                .last("LIMIT 1"))
-                .stream().findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("同步后仍未获取到监测对象的血糖读数：" + subjectId));
-        return toDto(reading);
+        return getLatestReading(subjectId);
     }
 
     @Transactional
@@ -75,50 +71,53 @@ public class GlucoseService {
         List<VendorGlucoseData> history = client.getHistoricalGlucose(
                 connection.getAccessToken(), connection.getVendorUserId(), vendorSubject);
 
+        latestSubjectDataCache.evict(subjectId);
         int saved = 0;
         for (VendorGlucoseData data : history) {
-            saveIfNew(subject.getId(), data);
+            saveIfNew(subject.getId(), data, false);
             saved++;
         }
         log.debug("Fetched {} historical readings for subject {}, deduped into DB", saved, subjectId);
 
+        refreshLatestDataCache(subjectId);
         return getReadings(subjectId);
     }
 
     public List<GlucoseReadingDto> getReadings(Long subjectId) {
-        List<GlucoseReading> readings = readingMapper.selectList(
+        List<GlucoseReading> storedReadings = readingMapper.selectList(
                 Wrappers.lambdaQuery(GlucoseReading.class)
                         .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
                         .orderByDesc(GlucoseReading::getReadingTime));
 
-        if (readings.isEmpty()) {
-            readings = fetchHistoryEntitiesForSubject(subjectId);
-        }
+        List<GlucoseReading> readings = storedReadings.isEmpty()
+                ? fetchHistoryEntitiesForSubject(subjectId)
+                : storedReadings;
 
-        return readings
-                .stream()
-                .map(this::toDto)
+        return IntStream.range(0, readings.size())
+                .mapToObj(index -> toDto(
+                        readings.get(index),
+                        index + 1 < readings.size() ? readings.get(index + 1) : null))
                 .collect(Collectors.toList());
     }
 
     public GlucoseReadingDto getLatestReading(Long subjectId) {
-        return readingMapper.selectList(
-                        Wrappers.lambdaQuery(GlucoseReading.class)
-                                .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
-                                .orderByDesc(GlucoseReading::getReadingTime)
-                                .last("LIMIT 1"))
-                .stream().findFirst()
-                .or(() -> {
-                    fetchHistoryEntitiesForSubject(subjectId);
-                    return readingMapper.selectList(
-                                    Wrappers.lambdaQuery(GlucoseReading.class)
-                                            .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
-                                            .orderByDesc(GlucoseReading::getReadingTime)
-                                            .last("LIMIT 1"))
-                            .stream().findFirst();
-                })
-                .map(this::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("未找到监测对象的血糖读数：" + subjectId));
+        Optional<GlucoseReadingDto> cached = latestSubjectDataCache.get(subjectId)
+                .map(LatestSubjectData::getLatestReading);
+        if (cached.isPresent()) {
+            return cached.get();
+        }
+
+        List<GlucoseReading> latestReadings = loadLatestReadings(subjectId, 2);
+        if (latestReadings.isEmpty()) {
+            fetchHistoryEntitiesForSubject(subjectId);
+            latestReadings = loadLatestReadings(subjectId, 2);
+        }
+
+        if (latestReadings.isEmpty()) {
+            throw new ResourceNotFoundException("未找到监测对象的血糖读数：" + subjectId);
+        }
+
+        return cacheLatestReading(subjectId, latestReadings);
     }
 
     /**
@@ -129,7 +128,7 @@ public class GlucoseService {
      */
     @Transactional
     public boolean saveIfNewReading(Long subjectId, VendorGlucoseData data) {
-        return saveIfNew(subjectId, data);
+        return saveIfNew(subjectId, data, true);
     }
 
     @Transactional
@@ -161,9 +160,11 @@ public class GlucoseService {
                         .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
                         .between(GlucoseReading::getReadingTime, minTime, maxTime));
 
+        latestSubjectDataCache.evict(subjectId);
         for (VendorGlucoseData data : history) {
-            saveIfNew(subjectId, data);
+            saveIfNew(subjectId, data, false);
         }
+        refreshLatestDataCache(subjectId);
 
         connection.setLastSyncedAt(Instant.now());
         connectionMapper.updateById(connection);
@@ -195,7 +196,7 @@ public class GlucoseService {
         VendorGlucoseData latest = client.getLatestGlucose(
                 connection.getAccessToken(), connection.getVendorUserId(), vendorSubject);
 
-        boolean isNew = saveIfNew(subject.getId(), latest);
+        boolean isNew = saveIfNew(subject.getId(), latest, true);
         if (isNew) {
             connection.setLastSyncedAt(Instant.now());
             connectionMapper.updateById(connection);
@@ -204,6 +205,10 @@ public class GlucoseService {
     }
 
     private boolean saveIfNew(Long subjectId, VendorGlucoseData data) {
+        return saveIfNew(subjectId, data, true);
+    }
+
+    private boolean saveIfNew(Long subjectId, VendorGlucoseData data, boolean refreshCache) {
         double mgdl = glucoseConverter.mmolToMgdl(data.getGlucoseMmol());
         TrendDirection trendDirection = data.getTrendDirection() == null
                 ? TrendDirection.NONE
@@ -229,6 +234,9 @@ public class GlucoseService {
             existing.setTrendDirection(trendDirection);
             existing.setPushedToNightscout(false);
             readingMapper.updateById(existing);
+            if (refreshCache) {
+                refreshLatestDataCache(subjectId);
+            }
             return false;
         }
 
@@ -241,6 +249,9 @@ public class GlucoseService {
                 .pushedToNightscout(false)
                 .build();
         readingMapper.insert(reading);
+        if (refreshCache) {
+            refreshLatestDataCache(subjectId);
+        }
         return true;
     }
 
@@ -255,17 +266,16 @@ public class GlucoseService {
         List<VendorGlucoseData> history = client.getHistoricalGlucose(
                 connection.getAccessToken(), connection.getVendorUserId(), vendorSubject);
 
+        latestSubjectDataCache.evict(subjectId);
         for (VendorGlucoseData data : history) {
-            saveIfNew(subjectId, data);
+            saveIfNew(subjectId, data, false);
         }
 
         connection.setLastSyncedAt(Instant.now());
         connectionMapper.updateById(connection);
 
-        return readingMapper.selectList(
-                Wrappers.lambdaQuery(GlucoseReading.class)
-                        .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
-                        .orderByDesc(GlucoseReading::getReadingTime));
+        refreshLatestDataCache(subjectId);
+        return loadLatestReadings(subjectId, Integer.MAX_VALUE);
     }
 
     private VendorSubject toVendorSubject(MonitoredSubject s) {
@@ -276,15 +286,52 @@ public class GlucoseService {
                 .build();
     }
 
-    private GlucoseReadingDto toDto(GlucoseReading r) {
+    private List<GlucoseReading> loadLatestReadings(Long subjectId, int limit) {
+        if (limit == Integer.MAX_VALUE) {
+            return readingMapper.selectList(
+                    Wrappers.lambdaQuery(GlucoseReading.class)
+                            .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                            .orderByDesc(GlucoseReading::getReadingTime));
+        }
+        return readingMapper.selectList(
+                Wrappers.lambdaQuery(GlucoseReading.class)
+                        .eq(GlucoseReading::getMonitoredSubjectId, subjectId)
+                        .orderByDesc(GlucoseReading::getReadingTime)
+                        .last("LIMIT " + limit));
+    }
+
+    private void refreshLatestDataCache(Long subjectId) {
+        List<GlucoseReading> latestReadings = loadLatestReadings(subjectId, 2);
+        if (latestReadings.isEmpty()) {
+            latestSubjectDataCache.evict(subjectId);
+            return;
+        }
+        cacheLatestReading(subjectId, latestReadings);
+    }
+
+    private GlucoseReadingDto cacheLatestReading(Long subjectId, List<GlucoseReading> latestReadings) {
+        GlucoseReading latest = latestReadings.get(0);
+        GlucoseReading previous = latestReadings.size() > 1 ? latestReadings.get(1) : null;
+        GlucoseReadingDto latestDto = toDto(latest, previous);
+        latestSubjectDataCache.put(LatestSubjectData.builder()
+                .subjectId(subjectId)
+                .latestReading(latestDto)
+                .updatedAt(Instant.now())
+                .build());
+        return latestDto;
+    }
+
+    private GlucoseReadingDto toDto(GlucoseReading current, GlucoseReading previous) {
         return GlucoseReadingDto.builder()
-                .id(r.getId())
-                .monitoredSubjectId(r.getMonitoredSubjectId())
-                .glucoseMmol(r.getGlucoseMmol())
-                .glucoseMgdl(r.getGlucoseMgdl())
-                .trendDirection(r.getTrendDirection())
-                .readingTime(r.getReadingTime())
-                .pushedToNightscout(r.getPushedToNightscout())
+                .id(current.getId())
+                .monitoredSubjectId(current.getMonitoredSubjectId())
+                .glucoseMmol(current.getGlucoseMmol())
+                .glucoseMgdl(current.getGlucoseMgdl())
+                .trendDirection(GlucoseTrendCalculator.calculate(
+                        current.getGlucoseMmol(),
+                        previous == null ? null : previous.getGlucoseMmol()))
+                .readingTime(current.getReadingTime())
+                .pushedToNightscout(current.getPushedToNightscout())
                 .build();
     }
 }
