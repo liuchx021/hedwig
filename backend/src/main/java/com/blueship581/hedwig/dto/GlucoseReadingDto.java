@@ -18,6 +18,7 @@ public class GlucoseReadingDto {
     private Double glucoseMmol;
     private Double glucoseMgdl;
     private TrendDirection trendDirection;
+    private Double delta;
     private Instant readingTime;
     private Boolean pushedToNightscout;
 }

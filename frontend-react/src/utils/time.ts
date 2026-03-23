@@ -33,8 +33,8 @@ export function formatRemainingTime(expiresAt: string): string {
 
 export function trendArrow(trend?: string): string {
   switch (trend) {
-    case 'DOUBLE_UP': return '\u2191';
-    case 'SINGLE_UP': return '\u2197';
+    case 'DOUBLE_UP': return '\u2191\u2191';
+    case 'SINGLE_UP': return '\u2191';
     case 'FORTY_FIVE_UP': return '\u2197';
     case 'FLAT': return '\u2192';
     case 'FORTY_FIVE_DOWN': return '\u2198';

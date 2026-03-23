@@ -3,13 +3,18 @@ package com.blueship581.hedwig.service;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.blueship581.hedwig.domain.entity.GlucoseReading;
 import com.blueship581.hedwig.domain.entity.NightscoutTarget;
+import com.blueship581.hedwig.domain.enums.TrendDirection;
 import com.blueship581.hedwig.domain.mapper.GlucoseReadingMapper;
+import com.blueship581.hedwig.util.GlucoseTrendCalculator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -39,11 +44,12 @@ public class NightscoutSyncService {
             return 0;
         }
 
+        Map<Long, TrendDirection> derivedTrends = deriveNightscoutTrends(pending);
         List<NightscoutClient.SgvEntry> entries = pending.stream()
                 .map(r -> nightscoutClient.toSgvEntry(
                         r.getGlucoseMmol(),
                         r.getReadingTime(),
-                        trendToNightscout(r.getTrendDirection().name()),
+                        trendToNightscout(derivedTrends.getOrDefault(r.getId(), TrendDirection.NONE)),
                         "hedwig"
                 ))
                 .collect(Collectors.toList());
@@ -63,7 +69,7 @@ public class NightscoutSyncService {
                         .map(r -> nightscoutClient.toSgvEntry(
                                 r.getGlucoseMmol(),
                                 r.getReadingTime(),
-                                trendToNightscout(r.getTrendDirection().name()),
+                                trendToNightscout(derivedTrends.getOrDefault(r.getId(), TrendDirection.NONE)),
                                 "hedwig"
                         ))
                         .collect(Collectors.toList());
@@ -102,15 +108,52 @@ public class NightscoutSyncService {
         return totalPushed;
     }
 
-    private String trendToNightscout(String trendName) {
-        return switch (trendName) {
-            case "DOUBLE_UP" -> "DoubleUp";
-            case "SINGLE_UP" -> "SingleUp";
-            case "FORTY_FIVE_UP" -> "FortyFiveUp";
-            case "FLAT" -> "Flat";
-            case "FORTY_FIVE_DOWN" -> "FortyFiveDown";
-            case "SINGLE_DOWN" -> "SingleDown";
-            case "DOUBLE_DOWN" -> "DoubleDown";
+    private Map<Long, TrendDirection> deriveNightscoutTrends(List<GlucoseReading> pending) {
+        Set<Long> subjectIds = pending.stream()
+                .map(GlucoseReading::getMonitoredSubjectId)
+                .collect(Collectors.toSet());
+        if (subjectIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<GlucoseReading> subjectReadings = readingMapper.selectList(
+                Wrappers.lambdaQuery(GlucoseReading.class)
+                        .in(GlucoseReading::getMonitoredSubjectId, subjectIds)
+                        .orderByDesc(GlucoseReading::getReadingTime));
+
+        Map<Long, TrendDirection> trendByReadingId = new HashMap<>();
+        Map<Long, List<GlucoseReading>> readingsBySubject = subjectReadings.stream()
+                .collect(Collectors.groupingBy(GlucoseReading::getMonitoredSubjectId));
+
+        readingsBySubject.values().forEach(readings -> {
+            for (int index = 0; index < readings.size(); index++) {
+                GlucoseReading current = readings.get(index);
+                GlucoseReading previous = index + 1 < readings.size() ? readings.get(index + 1) : null;
+                if (current.getId() == null) {
+                    continue;
+                }
+                trendByReadingId.put(
+                        current.getId(),
+                        GlucoseTrendCalculator.calculate(
+                                current.getGlucoseMmol(),
+                                previous == null ? null : previous.getGlucoseMmol()
+                        )
+                );
+            }
+        });
+
+        return trendByReadingId;
+    }
+
+    private String trendToNightscout(TrendDirection trendDirection) {
+        return switch (trendDirection) {
+            case DOUBLE_UP -> "DoubleUp";
+            case SINGLE_UP -> "SingleUp";
+            case FORTY_FIVE_UP -> "FortyFiveUp";
+            case FLAT -> "Flat";
+            case FORTY_FIVE_DOWN -> "FortyFiveDown";
+            case SINGLE_DOWN -> "SingleDown";
+            case DOUBLE_DOWN -> "DoubleDown";
             default -> "NONE";
         };
     }

@@ -36,8 +36,8 @@ const GlucoseTable: React.FC<Props> = ({ readings }) => {
       key: 'trendDirection',
       render: (val: string | undefined) => {
         const arrow = trendArrow(val);
-        const isUp = val === 'DOUBLE_UP' || val === 'SINGLE_UP';
-        const isDown = val === 'DOUBLE_DOWN' || val === 'SINGLE_DOWN';
+        const isUp = val === 'DOUBLE_UP' || val === 'SINGLE_UP' || val === 'FORTY_FIVE_UP';
+        const isDown = val === 'DOUBLE_DOWN' || val === 'SINGLE_DOWN' || val === 'FORTY_FIVE_DOWN';
         const color = isUp ? '#e05c5c' : isDown ? '#e0a84b' : undefined;
         return <span style={{ fontSize: 16, color }}>{arrow}</span>;
       },

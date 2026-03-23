@@ -64,6 +64,7 @@ export interface GlucoseReading {
   glucoseMmol: number;
   glucoseMgdl?: number;
   trendDirection?: TrendDirection;
+  delta?: number;
   readingTime: string;
   pushedToNightscout?: boolean;
 }

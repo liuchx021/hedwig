@@ -322,14 +322,18 @@ public class GlucoseService {
     }
 
     private GlucoseReadingDto toDto(GlucoseReading current, GlucoseReading previous) {
+        Double prevMmol = previous == null ? null : previous.getGlucoseMmol();
+        Double delta = (prevMmol != null && current.getGlucoseMmol() != null)
+                ? Math.round((current.getGlucoseMmol() - prevMmol) * 10.0) / 10.0
+                : null;
         return GlucoseReadingDto.builder()
                 .id(current.getId())
                 .monitoredSubjectId(current.getMonitoredSubjectId())
                 .glucoseMmol(current.getGlucoseMmol())
                 .glucoseMgdl(current.getGlucoseMgdl())
                 .trendDirection(GlucoseTrendCalculator.calculate(
-                        current.getGlucoseMmol(),
-                        previous == null ? null : previous.getGlucoseMmol()))
+                        current.getGlucoseMmol(), prevMmol))
+                .delta(delta)
                 .readingTime(current.getReadingTime())
                 .pushedToNightscout(current.getPushedToNightscout())
                 .build();

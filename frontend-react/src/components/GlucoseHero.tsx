@@ -119,6 +119,20 @@ const GlucoseHero: React.FC<GlucoseHeroProps> = ({ subjectId, subjectName }) => 
           {trendArrow(reading.trendDirection)}
         </span>
         <span className="dashboard-hero-unit">mmol/L</span>
+        {reading.delta !== undefined && reading.delta !== null && (
+          <span
+            className="dashboard-hero-delta"
+            style={{
+              color: reading.delta > 0
+                ? 'var(--glucose-high)'
+                : reading.delta < 0
+                ? 'var(--glucose-low)'
+                : 'var(--color-text-secondary)',
+            }}
+          >
+            {reading.delta > 0 ? '+' : ''}{reading.delta.toFixed(1)}
+          </span>
+        )}
       </div>
 
       {/* Subject info row */}
