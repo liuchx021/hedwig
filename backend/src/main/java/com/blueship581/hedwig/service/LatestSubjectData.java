@@ -14,9 +14,9 @@ import java.time.Instant;
 @AllArgsConstructor
 public class LatestSubjectData {
 
-    private Long subjectId;
+  private Long subjectId;
 
-    private GlucoseReadingDto latestReading;
+  private GlucoseReadingDto latestReading;
 
-    private Instant updatedAt;
+  private Instant updatedAt;
 }

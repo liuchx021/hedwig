@@ -12,8 +12,8 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VendorTokenInfo {
-    private String userId;
-    private String token;
-    private Instant expiresAt;
-    private boolean valid;
+  private String userId;
+  private String token;
+  private Instant expiresAt;
+  private boolean valid;
 }

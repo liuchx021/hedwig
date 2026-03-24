@@ -12,7 +12,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SyncResultDto {
-    private int syncedCount;
-    private Instant timeRangeStart;
-    private Instant timeRangeEnd;
+  private int syncedCount;
+  private Instant timeRangeStart;
+  private Instant timeRangeEnd;
 }

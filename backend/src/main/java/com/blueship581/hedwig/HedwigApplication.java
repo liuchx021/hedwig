@@ -10,10 +10,10 @@ import java.util.TimeZone;
 @EnableScheduling
 public class HedwigApplication {
 
-    public static void main(String[] args) {
-        String timezone = System.getenv().getOrDefault("TZ", "Asia/Shanghai");
-        TimeZone.setDefault(TimeZone.getTimeZone(timezone));
-        System.setProperty("user.timezone", timezone);
-        SpringApplication.run(HedwigApplication.class, args);
-    }
+  public static void main(String[] args) {
+    String timezone = System.getenv().getOrDefault("TZ", "Asia/Shanghai");
+    TimeZone.setDefault(TimeZone.getTimeZone(timezone));
+    System.setProperty("user.timezone", timezone);
+    SpringApplication.run(HedwigApplication.class, args);
+  }
 }

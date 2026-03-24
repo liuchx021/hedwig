@@ -1,0 +1,3685 @@
+{
+  "version": "2",
+  "themes": {
+    "mode": [
+      "light",
+      "dark"
+    ]
+  },
+  "variables": {
+    "color.primary": {
+      "type": "color",
+      "value": "#c8a44e"
+    },
+    "color.accent": {
+      "type": "color",
+      "value": "#4ecdc4"
+    },
+    "color.error": {
+      "type": "color",
+      "value": "#e05c5c"
+    },
+    "color.warning": {
+      "type": "color",
+      "value": "#e0a84b"
+    },
+    "color.bg.layout": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#ffffff",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#0c1117",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color.bg.container": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#ffffff",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#141a23",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color.bg.elevated": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#fafafa",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#1a2230",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color.text.primary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#1a1a1a",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#e8e6e1",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "color.text.secondary": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#666666",
+          "theme": {
+            "mode": "light"
+          }
+        },
+        {
+          "value": "#7a8599",
+          "theme": {
+            "mode": "dark"
+          }
+        }
+      ]
+    },
+    "radius.default": {
+      "type": "number",
+      "value": 8
+    },
+    "radius.small": {
+      "type": "number",
+      "value": 6
+    }
+  },
+  "children": [
+    {
+      "id": "login-page",
+      "name": "Login Page",
+      "type": "frame",
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "fill": "$color.bg.layout",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "login-brand-panel",
+          "name": "Brand Panel",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": 720,
+          "height": "fill_container",
+          "fill": "#0c1117",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "gap": 12,
+          "children": [
+            {
+              "id": "login-owl",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "🦉",
+              "fontSize": 80,
+              "textAlign": "center"
+            },
+            {
+              "id": "login-brand-title",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "Hedwig",
+              "fontSize": 36,
+              "fontWeight": "700",
+              "fontFamily": "DM Sans",
+              "fill": "$color.primary",
+              "textAlign": "center"
+            },
+            {
+              "id": "login-brand-sub",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "CGM · 血糖数据网关",
+              "fontSize": 15,
+              "fontFamily": "DM Sans",
+              "fill": "$color.text.secondary",
+              "textAlign": "center"
+            }
+          ]
+        },
+        {
+          "id": "login-form-panel",
+          "name": "Form Panel",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": 720,
+          "height": "fill_container",
+          "fill": "$color.bg.layout",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "id": "login-card",
+              "name": "Login Card",
+              "type": "frame",
+              "x": 0,
+              "y": 0,
+              "width": 420,
+              "height": "fit_content",
+              "fill": "$color.bg.container",
+              "cornerRadius": 16,
+              "layout": "vertical",
+              "padding": 40,
+              "gap": 20,
+              "children": [
+                {
+                  "id": "login-title",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "欢迎回来",
+                  "fontSize": 24,
+                  "fontWeight": "600",
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.primary",
+                  "textAlign": "center"
+                },
+                {
+                  "id": "login-desc",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "登录 Hedwig 管理系统",
+                  "fontSize": 14,
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.secondary",
+                  "textAlign": "center"
+                },
+                {
+                  "id": "username-input",
+                  "name": "Username Input",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.bg.elevated",
+                  "cornerRadius": "$radius.small",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#d9d9d9"
+                  },
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "user-icon",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "user",
+                      "fill": "#bfbfbf"
+                    },
+                    {
+                      "id": "username-ph",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "请输入用户名",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "#bfbfbf"
+                    }
+                  ]
+                },
+                {
+                  "id": "password-input",
+                  "name": "Password Input",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.bg.elevated",
+                  "cornerRadius": "$radius.small",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#d9d9d9"
+                  },
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "lock-icon",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "lock",
+                      "fill": "#bfbfbf"
+                    },
+                    {
+                      "id": "password-ph",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "请输入密码",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "#bfbfbf"
+                    }
+                  ]
+                },
+                {
+                  "id": "login-btn",
+                  "name": "Login Button",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.primary",
+                  "cornerRadius": "$radius.small",
+                  "layout": "horizontal",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "login-btn-text",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "登 录",
+                      "fontSize": 16,
+                      "fontWeight": "500",
+                      "fontFamily": "DM Sans",
+                      "fill": "#ffffff"
+                    }
+                  ]
+                },
+                {
+                  "id": "register-link",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "没有账号？ 立即注册",
+                  "fontSize": 14,
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.secondary",
+                  "textAlign": "center"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dashboard-page",
+      "name": "Dashboard Page",
+      "type": "frame",
+      "x": 1600,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "fill": "$color.bg.layout",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "sidebar",
+          "name": "Sidebar",
+          "type": "frame",
+          "reusable": true,
+          "x": 0,
+          "y": 0,
+          "width": 240,
+          "height": "fill_container",
+          "fill": "$color.bg.container",
+          "layout": "vertical",
+          "justifyContent": "space-between",
+          "children": [
+            {
+              "id": "sidebar-top",
+              "type": "frame",
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "layout": "vertical",
+              "gap": 4,
+              "padding": [
+                16,
+                12
+              ],
+              "children": [
+                {
+                  "id": "sidebar-logo",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 48,
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "s-owl",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "🦉",
+                      "fontSize": 24
+                    },
+                    {
+                      "id": "s-title",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "Hedwig",
+                      "fontSize": 18,
+                      "fontWeight": "700",
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.primary"
+                    }
+                  ]
+                },
+                {
+                  "id": "menu-dashboard",
+                  "name": "Menu - Dashboard (active)",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 40,
+                  "fill": "#c8a44e20",
+                  "cornerRadius": "$radius.small",
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "ic-dashboard",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 18,
+                      "height": 18,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "layout-dashboard",
+                      "fill": "$color.primary"
+                    },
+                    {
+                      "id": "t-dashboard",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "仪表盘",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.primary"
+                    }
+                  ]
+                },
+                {
+                  "id": "menu-connect",
+                  "name": "Menu - Connect",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 40,
+                  "cornerRadius": "$radius.small",
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "ic-connect",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 18,
+                      "height": 18,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "plug",
+                      "fill": "$color.text.secondary"
+                    },
+                    {
+                      "id": "t-connect",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "连接设备",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.primary"
+                    }
+                  ]
+                },
+                {
+                  "id": "menu-settings",
+                  "name": "Menu - Settings",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 40,
+                  "cornerRadius": "$radius.small",
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "ic-settings",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 18,
+                      "height": 18,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "settings",
+                      "fill": "$color.text.secondary"
+                    },
+                    {
+                      "id": "t-settings",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "Nightscout配置",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "sidebar-bottom",
+              "type": "frame",
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "layout": "vertical",
+              "padding": [
+                12,
+                16
+              ],
+              "gap": 8,
+              "children": [
+                {
+                  "id": "user-row",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "ic-user",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "user",
+                      "fill": "$color.text.primary"
+                    },
+                    {
+                      "id": "username-text",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "admin",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.primary"
+                    }
+                  ]
+                },
+                {
+                  "id": "logout-btn",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "id": "ic-logout",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 14,
+                      "height": 14,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "log-out",
+                      "fill": "$color.error"
+                    },
+                    {
+                      "id": "t-logout",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "退出",
+                      "fontSize": 13,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.error"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "dashboard-content",
+          "name": "Main Content",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": "fill_container",
+          "height": "fill_container",
+          "fill": "$color.bg.layout",
+          "layout": "vertical",
+          "padding": 24,
+          "gap": 24,
+          "children": [
+            {
+              "id": "dash-header",
+              "type": "frame",
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "layout": "horizontal",
+              "justifyContent": "space-between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "header-left",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "id": "greeting",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "早上好",
+                      "fontSize": 24,
+                      "fontWeight": "600",
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.primary"
+                    },
+                    {
+                      "id": "greeting-sub",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "血糖监测一览",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.secondary"
+                    }
+                  ]
+                },
+                {
+                  "id": "add-btn",
+                  "name": "Add Device Button",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": 36,
+                  "cornerRadius": "$radius.small",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#d9d9d9"
+                  },
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "gap": 6,
+                  "children": [
+                    {
+                      "id": "ic-plus",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "plus",
+                      "fill": "$color.text.primary"
+                    },
+                    {
+                      "id": "t-add",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "添加设备",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "glucose-hero",
+              "name": "Glucose Hero Card",
+              "type": "frame",
+              "reusable": true,
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "fill": "#4ecdc40F",
+              "cornerRadius": "$radius.default",
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#4ecdc42E"
+              },
+              "layout": "vertical",
+              "padding": 20,
+              "gap": 12,
+              "children": [
+                {
+                  "id": "hero-row",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "alignItems": "baseline",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "hero-value",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "6.8",
+                      "fontSize": 42,
+                      "fontWeight": "700",
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.accent"
+                    },
+                    {
+                      "id": "hero-arrow",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "→",
+                      "fontSize": 28,
+                      "fill": "$color.accent"
+                    },
+                    {
+                      "id": "hero-unit",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "mmol/L",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.secondary"
+                    },
+                    {
+                      "id": "hero-delta",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "+0.3",
+                      "fontSize": 16,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.accent"
+                    }
+                  ]
+                },
+                {
+                  "id": "hero-meta",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "id": "hero-dot",
+                      "type": "ellipse",
+                      "x": 0,
+                      "y": 0,
+                      "width": 6,
+                      "height": 6,
+                      "fill": "$color.accent"
+                    },
+                    {
+                      "id": "hero-subject",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "张三 · 3 分钟前",
+                      "fontSize": 13,
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.secondary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "device-panel",
+              "name": "Device Panel",
+              "type": "frame",
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "fill": "$color.bg.container",
+              "cornerRadius": "$radius.default",
+              "layout": "vertical",
+              "padding": 20,
+              "gap": 16,
+              "children": [
+                {
+                  "id": "panel-title",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "设备连接",
+                  "fontSize": 16,
+                  "fontWeight": "600",
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.primary"
+                },
+                {
+                  "id": "device-row-ottai",
+                  "name": "Device - Ottai",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "horizontal",
+                  "justifyContent": "space-between",
+                  "alignItems": "center",
+                  "padding": [
+                    12,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "id": "dev-left",
+                      "type": "frame",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "layout": "horizontal",
+                      "alignItems": "center",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "id": "dev-dot",
+                          "type": "ellipse",
+                          "x": 0,
+                          "y": 0,
+                          "width": 8,
+                          "height": 8,
+                          "fill": "$color.accent"
+                        },
+                        {
+                          "id": "dev-info",
+                          "type": "frame",
+                          "x": 0,
+                          "y": 0,
+                          "width": "fit_content",
+                          "height": "fit_content",
+                          "layout": "vertical",
+                          "gap": 2,
+                          "children": [
+                            {
+                              "id": "dev-vendor",
+                              "type": "text",
+                              "x": 0,
+                              "y": 0,
+                              "width": "fit_content",
+                              "height": "fit_content",
+                              "textGrowth": "auto",
+                              "content": "欧泰",
+                              "fontSize": 14,
+                              "fontWeight": "500",
+                              "fontFamily": "DM Sans",
+                              "fill": "$color.text.primary"
+                            },
+                            {
+                              "id": "dev-subject",
+                              "type": "text",
+                              "x": 0,
+                              "y": 0,
+                              "width": "fit_content",
+                              "height": "fit_content",
+                              "textGrowth": "auto",
+                              "content": "张三",
+                              "fontSize": 12,
+                              "fontFamily": "DM Sans",
+                              "fill": "$color.text.secondary"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "dev-tags",
+                      "type": "frame",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "layout": "horizontal",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "id": "tag-sensor",
+                          "type": "frame",
+                          "x": 0,
+                          "y": 0,
+                          "width": "fit_content",
+                          "height": 24,
+                          "fill": "#4ecdc41A",
+                          "cornerRadius": 12,
+                          "layout": "horizontal",
+                          "alignItems": "center",
+                          "padding": [
+                            0,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "id": "tag-sensor-t",
+                              "type": "text",
+                              "x": 0,
+                              "y": 0,
+                              "width": "fit_content",
+                              "height": "fit_content",
+                              "textGrowth": "auto",
+                              "content": "传感器 12天",
+                              "fontSize": 12,
+                              "fontFamily": "DM Sans",
+                              "fill": "$color.accent"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "tag-online",
+                          "type": "frame",
+                          "x": 0,
+                          "y": 0,
+                          "width": "fit_content",
+                          "height": 24,
+                          "fill": "#4ecdc41A",
+                          "cornerRadius": 12,
+                          "layout": "horizontal",
+                          "alignItems": "center",
+                          "padding": [
+                            0,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "id": "tag-online-t",
+                              "type": "text",
+                              "x": 0,
+                              "y": 0,
+                              "width": "fit_content",
+                              "height": "fit_content",
+                              "textGrowth": "auto",
+                              "content": "在线",
+                              "fontSize": 12,
+                              "fontFamily": "DM Sans",
+                              "fill": "$color.accent"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "dev-actions",
+                      "type": "frame",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "layout": "horizontal",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "id": "btn-view",
+                          "type": "text",
+                          "x": 0,
+                          "y": 0,
+                          "width": "fit_content",
+                          "height": "fit_content",
+                          "textGrowth": "auto",
+                          "content": "查看 →",
+                          "fontSize": 13,
+                          "fontFamily": "DM Sans",
+                          "fill": "$color.accent"
+                        },
+                        {
+                          "id": "btn-disconnect",
+                          "type": "text",
+                          "x": 0,
+                          "y": 0,
+                          "width": "fit_content",
+                          "height": "fit_content",
+                          "textGrowth": "auto",
+                          "content": "断开",
+                          "fontSize": 13,
+                          "fontFamily": "DM Sans",
+                          "fill": "$color.error"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "register-page",
+      "name": "Register Page",
+      "type": "frame",
+      "x": 3200,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "fill": "$color.bg.layout",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "register-brand-panel",
+          "name": "Brand Panel",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": 720,
+          "height": "fill_container",
+          "fill": "#0c1117",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "gap": 12,
+          "children": [
+            {
+              "id": "register-owl",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "🦉",
+              "fontSize": 80,
+              "textAlign": "center"
+            },
+            {
+              "id": "register-brand-title",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "Hedwig",
+              "fontSize": 36,
+              "fontWeight": "700",
+              "fontFamily": "DM Sans",
+              "fill": "$color.primary",
+              "textAlign": "center"
+            },
+            {
+              "id": "register-brand-sub",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "CGM · 血糖数据网关",
+              "fontSize": 15,
+              "fontFamily": "DM Sans",
+              "fill": "$color.text.secondary",
+              "textAlign": "center"
+            }
+          ]
+        },
+        {
+          "id": "register-form-panel",
+          "name": "Form Panel",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": 720,
+          "height": "fill_container",
+          "fill": "$color.bg.layout",
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "id": "register-card",
+              "name": "Register Card",
+              "type": "frame",
+              "x": 0,
+              "y": 0,
+              "width": 420,
+              "height": "fit_content",
+              "fill": "$color.bg.container",
+              "cornerRadius": 16,
+              "layout": "vertical",
+              "padding": 40,
+              "gap": 20,
+              "children": [
+                {
+                  "id": "register-title",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "创建账户",
+                  "fontSize": 24,
+                  "fontWeight": "600",
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.primary",
+                  "textAlign": "center"
+                },
+                {
+                  "id": "register-desc",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "注册 Hedwig 管理系统",
+                  "fontSize": 14,
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.secondary",
+                  "textAlign": "center"
+                },
+                {
+                  "id": "reg-username-input",
+                  "name": "Username Input",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.bg.elevated",
+                  "cornerRadius": "$radius.small",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#d9d9d9"
+                  },
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "reg-user-icon",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "user",
+                      "fill": "#bfbfbf"
+                    },
+                    {
+                      "id": "reg-username-ph",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "请输入用户名",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "#bfbfbf"
+                    }
+                  ]
+                },
+                {
+                  "id": "reg-password-input",
+                  "name": "Password Input",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.bg.elevated",
+                  "cornerRadius": "$radius.small",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#d9d9d9"
+                  },
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "reg-lock-icon",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "lock",
+                      "fill": "#bfbfbf"
+                    },
+                    {
+                      "id": "reg-password-ph",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "请输入密码",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "#bfbfbf"
+                    }
+                  ]
+                },
+                {
+                  "id": "reg-confirm-input",
+                  "name": "Confirm Password Input",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.bg.elevated",
+                  "cornerRadius": "$radius.small",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#d9d9d9"
+                  },
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "reg-confirm-lock",
+                      "type": "icon_font",
+                      "x": 0,
+                      "y": 0,
+                      "width": 16,
+                      "height": 16,
+                      "iconFontFamily": "lucide",
+                      "iconFontName": "lock",
+                      "fill": "#bfbfbf"
+                    },
+                    {
+                      "id": "reg-confirm-ph",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "请再次输入密码",
+                      "fontSize": 14,
+                      "fontFamily": "DM Sans",
+                      "fill": "#bfbfbf"
+                    }
+                  ]
+                },
+                {
+                  "id": "register-submit-btn",
+                  "name": "Register Button",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.primary",
+                  "cornerRadius": "$radius.small",
+                  "layout": "horizontal",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "register-submit-text",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "注 册",
+                      "fontSize": 16,
+                      "fontWeight": "500",
+                      "fontFamily": "DM Sans",
+                      "fill": "#ffffff"
+                    }
+                  ]
+                },
+                {
+                  "id": "login-cta-link",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "已有账号？去登录",
+                  "fontSize": 14,
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.secondary",
+                  "textAlign": "center"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vendor-connect-page",
+      "name": "Vendor Connect Page",
+      "type": "frame",
+      "x": 4800,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "fill": "$color.bg.layout",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "vendor-connect-page-sidebar",
+          "type": "ref",
+          "ref": "sidebar",
+          "x": 0,
+          "y": 0,
+          "width": 240,
+          "height": "fill_container"
+        },
+        {
+          "id": "vendor-connect-page-main",
+          "name": "Main",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "padding": 32,
+          "gap": 20,
+          "fill": "$color.bg.layout",
+          "children": [
+            {
+              "id": "vc-back",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "← 返回仪表盘",
+              "fontSize": 14,
+              "fontFamily": "DM Sans",
+              "fill": "$color.accent"
+            },
+            {
+              "id": "vc-title",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "接入 CGM 厂商",
+              "fontSize": 22,
+              "fontWeight": "600",
+              "fontFamily": "DM Sans",
+              "fill": "$color.text.primary"
+            },
+            {
+              "id": "vc-sub",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "欧泰 / 硅基 · Token 或账号密码（硅基）· 说明文案与 Segmented 切换",
+              "fontSize": 13,
+              "fontFamily": "DM Sans",
+              "fill": "$color.text.secondary"
+            },
+            {
+              "id": "vc-card",
+              "type": "frame",
+              "x": 0,
+              "y": 0,
+              "width": "fill_container",
+              "height": "fit_content",
+              "fill": "$color.bg.container",
+              "cornerRadius": "$radius.default",
+              "layout": "vertical",
+              "padding": 24,
+              "gap": 16,
+              "children": [
+                {
+                  "id": "vc-seg-hint",
+                  "type": "text",
+                  "content": "[厂商切换] [Token | 账号密码]",
+                  "fontSize": 12,
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.secondary"
+                },
+                {
+                  "id": "vc-token-area",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "vc-ta-label",
+                      "type": "text",
+                      "content": "访问令牌",
+                      "fontSize": 13,
+                      "fontWeight": "500",
+                      "fontFamily": "DM Sans",
+                      "fill": "$color.text.primary"
+                    },
+                    {
+                      "id": "vc-ta-placeholder",
+                      "type": "text",
+                      "content": "粘贴 access token（无 Bearer 前缀）",
+                      "fontSize": 13,
+                      "fontFamily": "DM Sans",
+                      "fill": "#bfbfbf"
+                    }
+                  ]
+                },
+                {
+                  "id": "vc-primary-btn",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": 44,
+                  "fill": "$color.primary",
+                  "cornerRadius": "$radius.small",
+                  "layout": "horizontal",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "vc-primary-t",
+                      "type": "text",
+                      "content": "验证并连接",
+                      "fontSize": 15,
+                      "fontWeight": "500",
+                      "fontFamily": "DM Sans",
+                      "fill": "#ffffff"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "glucose-detail-page",
+      "name": "Glucose Detail Page",
+      "type": "frame",
+      "x": 6400,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "fill": "$color.bg.layout",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "glucose-detail-page-sidebar",
+          "type": "ref",
+          "ref": "sidebar",
+          "x": 0,
+          "y": 0,
+          "width": 240,
+          "height": "fill_container"
+        },
+        {
+          "id": "glucose-detail-page-main",
+          "name": "Main",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "padding": 32,
+          "gap": 20,
+          "fill": "$color.bg.layout",
+          "children": [
+            {
+              "id": "gd-back",
+              "type": "text",
+              "content": "← 返回",
+              "fontSize": 14,
+              "fontFamily": "DM Sans",
+              "fill": "$color.accent"
+            },
+            {
+              "id": "gd-head",
+              "type": "frame",
+              "width": "fill_container",
+              "height": "fit_content",
+              "layout": "horizontal",
+              "justifyContent": "space-between",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "gd-title",
+                  "type": "text",
+                  "content": "血糖详情 · 监测对象",
+                  "fontSize": 20,
+                  "fontWeight": "600",
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.primary"
+                },
+                {
+                  "id": "gd-range",
+                  "type": "text",
+                  "content": "时间范围 [Select: 6h–72h]",
+                  "fontSize": 13,
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.secondary"
+                }
+              ]
+            },
+            {
+              "id": "gd-stats-row",
+              "type": "frame",
+              "width": "fill_container",
+              "height": "fit_content",
+              "layout": "horizontal",
+              "gap": 16,
+              "children": [
+                {
+                  "id": "gd-stat1",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": 88,
+                  "fill": "$color.bg.container",
+                  "cornerRadius": "$radius.default",
+                  "layout": "vertical",
+                  "padding": 16,
+                  "gap": 4,
+                  "children": [
+                    {
+                      "id": "gd-s1l",
+                      "type": "text",
+                      "content": "当前",
+                      "fontSize": 12,
+                      "fill": "$color.text.secondary"
+                    },
+                    {
+                      "id": "gd-s1v",
+                      "type": "text",
+                      "content": "5.6 mmol/L",
+                      "fontSize": 22,
+                      "fontWeight": "600",
+                      "fill": "$color.accent"
+                    }
+                  ]
+                },
+                {
+                  "id": "gd-stat2",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": 88,
+                  "fill": "$color.bg.container",
+                  "cornerRadius": "$radius.default",
+                  "layout": "vertical",
+                  "padding": 16,
+                  "gap": 4,
+                  "children": [
+                    {
+                      "id": "gd-s2l",
+                      "type": "text",
+                      "content": "平均",
+                      "fontSize": 12,
+                      "fill": "$color.text.secondary"
+                    },
+                    {
+                      "id": "gd-s2v",
+                      "type": "text",
+                      "content": "6.1",
+                      "fontSize": 22,
+                      "fontWeight": "600",
+                      "fill": "$color.text.primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "gd-chart-placeholder",
+              "type": "frame",
+              "width": "fill_container",
+              "height": 240,
+              "fill": "$color.bg.elevated",
+              "cornerRadius": "$radius.default",
+              "layout": "horizontal",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "gd-chart-label",
+                  "type": "text",
+                  "content": "GlucoseChart 区域",
+                  "fontSize": 14,
+                  "fontFamily": "DM Sans",
+                  "fill": "$color.text.secondary"
+                }
+              ]
+            },
+            {
+              "id": "gd-table-hint",
+              "type": "text",
+              "content": "GlucoseTable · 同步按钮",
+              "fontSize": 13,
+              "fontFamily": "DM Sans",
+              "fill": "$color.text.secondary"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "settings-page",
+      "name": "Settings Page",
+      "type": "frame",
+      "x": 8000,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "fill": "$color.bg.layout",
+      "layout": "horizontal",
+      "children": [
+        {
+          "id": "settings-page-sidebar",
+          "type": "ref",
+          "ref": "sidebar",
+          "x": 0,
+          "y": 0,
+          "width": 240,
+          "height": "fill_container"
+        },
+        {
+          "id": "settings-page-main",
+          "name": "Main",
+          "type": "frame",
+          "x": 0,
+          "y": 0,
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "padding": 32,
+          "gap": 20,
+          "fill": "$color.bg.layout",
+          "children": [
+            {
+              "id": "st-title",
+              "type": "text",
+              "content": "设置 · Nightscout 目标",
+              "fontSize": 22,
+              "fontWeight": "600",
+              "fontFamily": "DM Sans",
+              "fill": "$color.text.primary"
+            },
+            {
+              "id": "st-sub",
+              "type": "text",
+              "content": "目标列表 · 添加 / 编辑 / 删除 / 启用 · 同步到 NS",
+              "fontSize": 13,
+              "fontFamily": "DM Sans",
+              "fill": "$color.text.secondary"
+            },
+            {
+              "id": "st-actions",
+              "type": "frame",
+              "width": "fill_container",
+              "height": "fit_content",
+              "layout": "horizontal",
+              "gap": 12,
+              "children": [
+                {
+                  "id": "st-btn-add",
+                  "type": "frame",
+                  "width": "fit_content",
+                  "height": 36,
+                  "fill": "$color.primary",
+                  "cornerRadius": "$radius.small",
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "layout": "horizontal",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "st-btn-add-t",
+                      "type": "text",
+                      "content": "添加目标",
+                      "fontSize": 14,
+                      "fill": "#ffffff"
+                    }
+                  ]
+                },
+                {
+                  "id": "st-btn-sync",
+                  "type": "frame",
+                  "width": "fit_content",
+                  "height": 36,
+                  "fill": "$color.bg.container",
+                  "cornerRadius": "$radius.small",
+                  "stroke": {
+                    "align": "inside",
+                    "thickness": 1,
+                    "fill": "#d9d9d9"
+                  },
+                  "padding": [
+                    0,
+                    16
+                  ],
+                  "layout": "horizontal",
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "st-btn-sync-t",
+                      "type": "text",
+                      "content": "同步",
+                      "fontSize": 14,
+                      "fill": "$color.text.primary"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "st-card-row",
+              "type": "frame",
+              "width": "fill_container",
+              "height": "fit_content",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "id": "st-card-1",
+                  "type": "frame",
+                  "width": "fill_container",
+                  "height": "fit_content",
+                  "fill": "$color.bg.container",
+                  "cornerRadius": "$radius.default",
+                  "padding": 16,
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "st-c1t",
+                      "type": "text",
+                      "content": "NightscoutTargetCard 示例",
+                      "fontWeight": "600",
+                      "fontSize": 15,
+                      "fill": "$color.text.primary"
+                    },
+                    {
+                      "id": "st-c1d",
+                      "type": "text",
+                      "content": "URL · API Secret · 关联对象 · 启用开关",
+                      "fontSize": 12,
+                      "fill": "$color.text.secondary"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "not-found-page",
+      "name": "404 Page",
+      "type": "frame",
+      "x": 9600,
+      "y": 0,
+      "width": 1440,
+      "height": 900,
+      "fill": "$color.bg.layout",
+      "layout": "vertical",
+      "justifyContent": "center",
+      "alignItems": "center",
+      "gap": 16,
+      "children": [
+        {
+          "id": "nf-title",
+          "type": "text",
+          "content": "404 — 页面不存在",
+          "fontSize": 22,
+          "fontWeight": "600",
+          "fontFamily": "DM Sans",
+          "fill": "$color.text.secondary"
+        },
+        {
+          "id": "nf-link",
+          "type": "text",
+          "content": "返回首页",
+          "fontSize": 15,
+          "fontFamily": "DM Sans",
+          "fill": "$color.accent"
+        }
+      ]
+    },
+    {
+      "id": "guide-add-project",
+      "name": "Guide: Add Existing Project",
+      "type": "frame",
+      "x": 11200,
+      "y": 0,
+      "width": 1440,
+      "height": 1260,
+      "fill": "#FFFFFF",
+      "children": [
+        {
+          "id": "guide-banner-bg",
+          "name": "Banner Background",
+          "type": "frame",
+          "x": 100,
+          "y": 60,
+          "width": 1200,
+          "height": 200,
+          "fill": "#1E1E2E",
+          "cornerRadius": 20,
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "gap": 12,
+          "children": [
+            {
+              "id": "guide-title",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "如何加入已有项目到 Pencil",
+              "fontSize": 42,
+              "fontWeight": "700",
+              "fill": "#FFFFFF",
+              "textAlign": "center"
+            },
+            {
+              "id": "guide-subtitle",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "Step-by-Step Guide / 分步指南",
+              "fontSize": 20,
+              "fill": "#A0A0B8",
+              "textAlign": "center"
+            }
+          ]
+        },
+        {
+          "id": "guide-step1-card",
+          "name": "Step 1 Card",
+          "type": "frame",
+          "x": 100,
+          "y": 300,
+          "width": 540,
+          "height": 280,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "guide-step1-circle",
+              "name": "Step 1 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step1-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "1",
+                  "fontSize": 24,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "guide-step1-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "打开 Pencil 应用",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#1E1E2E"
+            },
+            {
+              "id": "guide-step1-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 280,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "启动 Pencil 设计工具，\n确保已安装最新版本。",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "guide-step1-icon-bg",
+              "name": "App Icon",
+              "type": "frame",
+              "x": 360,
+              "y": 140,
+              "width": 120,
+              "height": 80,
+              "fill": "#6C5CE7",
+              "cornerRadius": 12,
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step1-icon-text",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "P",
+                  "fontSize": 36,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "guide-step2-card",
+          "name": "Step 2 Card",
+          "type": "frame",
+          "x": 660,
+          "y": 300,
+          "width": 540,
+          "height": 280,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "guide-step2-circle",
+              "name": "Step 2 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step2-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "2",
+                  "fontSize": 24,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "guide-step2-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "选择「加入项目」",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#1E1E2E"
+            },
+            {
+              "id": "guide-step2-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 280,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "在主界面或菜单中，找到并\n点击「加入已有项目」选项。",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "guide-step2-menu1",
+              "name": "Menu Item 1",
+              "type": "frame",
+              "x": 300,
+              "y": 100,
+              "width": 200,
+              "height": 36,
+              "fill": "#FFFFFF",
+              "cornerRadius": 8,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#D0D0E8"
+              },
+              "layout": "horizontal",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step2-menu1-text",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "新建项目",
+                  "fontSize": 13,
+                  "fill": "#555555"
+                }
+              ]
+            },
+            {
+              "id": "guide-step2-menu2",
+              "name": "Menu Item 2 - Highlighted",
+              "type": "frame",
+              "x": 300,
+              "y": 142,
+              "width": 200,
+              "height": 36,
+              "fill": "#6C5CE7",
+              "cornerRadius": 8,
+              "layout": "horizontal",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step2-menu2-text",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "加入项目",
+                  "fontSize": 13,
+                  "fontWeight": "600",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            },
+            {
+              "id": "guide-step2-menu3",
+              "name": "Menu Item 3",
+              "type": "frame",
+              "x": 300,
+              "y": 184,
+              "width": 200,
+              "height": 36,
+              "fill": "#FFFFFF",
+              "cornerRadius": 8,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#D0D0E8"
+              },
+              "layout": "horizontal",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step2-menu3-text",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "打开最近",
+                  "fontSize": 13,
+                  "fill": "#555555"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "guide-step3-card",
+          "name": "Step 3 Card",
+          "type": "frame",
+          "x": 100,
+          "y": 620,
+          "width": 540,
+          "height": 280,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "guide-step3-circle",
+              "name": "Step 3 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step3-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "3",
+                  "fontSize": 24,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "guide-step3-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "输入项目信息",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#1E1E2E"
+            },
+            {
+              "id": "guide-step3-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 280,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "输入项目的 URL、路径或邀请码，\n连接到已有项目。",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "guide-step3-input",
+              "name": "URL Input Field",
+              "type": "frame",
+              "x": 24,
+              "y": 180,
+              "width": 240,
+              "height": 44,
+              "fill": "#FFFFFF",
+              "cornerRadius": 8,
+              "stroke": {
+                "align": "inside",
+                "thickness": 2,
+                "fill": "#6C5CE7"
+              },
+              "layout": "horizontal",
+              "alignItems": "center",
+              "padding": [
+                0,
+                12
+              ],
+              "children": [
+                {
+                  "id": "guide-step3-placeholder",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "https://project-url...",
+                  "fontSize": 14,
+                  "fill": "#AAAAAA"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "guide-step4-card",
+          "name": "Step 4 Card",
+          "type": "frame",
+          "x": 660,
+          "y": 620,
+          "width": 540,
+          "height": 280,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "guide-step4-circle",
+              "name": "Step 4 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step4-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "4",
+                  "fontSize": 24,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "guide-step4-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "确认并同步",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#1E1E2E"
+            },
+            {
+              "id": "guide-step4-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 280,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "确认项目信息无误后，点击\n「同步」按钮，等待项目\n文件下载完成。",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "guide-step4-progress-bg",
+              "name": "Progress Bar Background",
+              "type": "frame",
+              "x": 24,
+              "y": 200,
+              "width": 220,
+              "height": 12,
+              "fill": "#E0E0F0",
+              "cornerRadius": 6,
+              "children": [
+                {
+                  "id": "guide-step4-progress-fill",
+                  "name": "Progress Bar Fill",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": 154,
+                  "height": 12,
+                  "fill": "#6C5CE7",
+                  "cornerRadius": 6
+                }
+              ]
+            },
+            {
+              "id": "guide-step4-progress-label",
+              "type": "text",
+              "x": 250,
+              "y": 196,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "70%",
+              "fontSize": 14,
+              "fontWeight": "600",
+              "fill": "#6C5CE7"
+            },
+            {
+              "id": "guide-step4-sync-btn",
+              "name": "Sync Button",
+              "type": "frame",
+              "x": 360,
+              "y": 140,
+              "width": 140,
+              "height": 44,
+              "fill": "#6C5CE7",
+              "cornerRadius": 10,
+              "layout": "horizontal",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "gap": 8,
+              "children": [
+                {
+                  "id": "guide-step4-sync-icon",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "🔄",
+                  "fontSize": 16
+                },
+                {
+                  "id": "guide-step4-sync-text",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "同步项目",
+                  "fontSize": 15,
+                  "fontWeight": "600",
+                  "fill": "#FFFFFF"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "guide-step5-card",
+          "name": "Step 5 Card",
+          "type": "frame",
+          "x": 100,
+          "y": 940,
+          "width": 1100,
+          "height": 200,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "guide-step5-circle",
+              "name": "Step 5 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "guide-step5-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "5",
+                  "fontSize": 24,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "guide-step5-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "🎉 开始协作",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#1E1E2E"
+            },
+            {
+              "id": "guide-step5-desc",
+              "type": "text",
+              "x": 84,
+              "y": 76,
+              "width": 500,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "项目同步完成后，即可在 Pencil 中查看和编辑所有设计文件。\n与团队成员实时协作，共同推进项目进展！",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "guide-step5-success-badge",
+              "name": "Success Badge",
+              "type": "frame",
+              "x": 780,
+              "y": 40,
+              "width": 280,
+              "height": 120,
+              "fill": "#E8F5E9",
+              "cornerRadius": 16,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#A5D6A7"
+              },
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "gap": 8,
+              "children": [
+                {
+                  "id": "guide-step5-check",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "✅",
+                  "fontSize": 32,
+                  "textAlign": "center"
+                },
+                {
+                  "id": "guide-step5-success-text",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "项目加入成功！",
+                  "fontSize": 18,
+                  "fontWeight": "600",
+                  "fill": "#2E7D32",
+                  "textAlign": "center"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "guide-footer",
+          "name": "Footer",
+          "type": "frame",
+          "x": 100,
+          "y": 1180,
+          "width": 1100,
+          "height": 50,
+          "layout": "horizontal",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "id": "guide-footer-text",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "Hedwig Design System · Pencil 指南 · © 2025",
+              "fontSize": 14,
+              "fill": "#AAAAAA",
+              "textAlign": "center"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "guide-open-project",
+      "name": "Guide: Open Project",
+      "type": "frame",
+      "x": 12800,
+      "y": 0,
+      "width": 1440,
+      "height": 1200,
+      "fill": "#FFFFFF",
+      "children": [
+        {
+          "id": "open-banner-bg",
+          "name": "Banner Background",
+          "type": "frame",
+          "x": 100,
+          "y": 60,
+          "width": 1200,
+          "height": 200,
+          "fill": "#1E1E2E",
+          "cornerRadius": 20,
+          "layout": "vertical",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "gap": 12,
+          "children": [
+            {
+              "id": "open-title",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "如何打开已有项目",
+              "fontSize": 42,
+              "fill": "#FFFFFF",
+              "fontWeight": "700",
+              "textAlign": "center"
+            },
+            {
+              "id": "open-subtitle",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "Open Existing Project / 打开项目指南",
+              "fontSize": 20,
+              "fill": "#A0A0B8",
+              "textAlign": "center"
+            }
+          ]
+        },
+        {
+          "id": "open-step1-card",
+          "name": "Step 1 Card",
+          "type": "frame",
+          "x": 100,
+          "y": 300,
+          "width": 540,
+          "height": 320,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "open-step1-circle",
+              "name": "Step 1 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "open-step1-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "1",
+                  "fontSize": 24,
+                  "fill": "#FFFFFF",
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "id": "open-step1-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "通过菜单打开",
+              "fontSize": 24,
+              "fill": "#1E1E2E",
+              "fontWeight": "700"
+            },
+            {
+              "id": "open-step1-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 300,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "在 Pencil 中，点击顶部菜单栏：\nFile → Open Project\n或使用快捷键 ⌘+O",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "open-step1-menubar",
+              "name": "Menu Bar",
+              "type": "frame",
+              "x": 24,
+              "y": 200,
+              "width": 480,
+              "height": 36,
+              "fill": "#F0F0F5",
+              "cornerRadius": 8,
+              "layout": "horizontal",
+              "alignItems": "center",
+              "gap": 20,
+              "padding": [
+                0,
+                16
+              ],
+              "children": [
+                {
+                  "id": "open-step1-menu-file",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "File",
+                  "fontSize": 14,
+                  "fill": "#6C5CE7",
+                  "fontWeight": "600"
+                },
+                {
+                  "id": "open-step1-menu-edit",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "Edit",
+                  "fontSize": 14,
+                  "fill": "#888888"
+                },
+                {
+                  "id": "open-step1-menu-view",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "View",
+                  "fontSize": 14,
+                  "fill": "#888888"
+                },
+                {
+                  "id": "open-step1-menu-help",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "Help",
+                  "fontSize": 14,
+                  "fill": "#888888"
+                }
+              ]
+            },
+            {
+              "id": "open-step1-dropdown",
+              "name": "Dropdown Menu",
+              "type": "frame",
+              "x": 24,
+              "y": 240,
+              "width": 200,
+              "height": 110,
+              "fill": "#FFFFFF",
+              "cornerRadius": 8,
+              "stroke": {
+                "align": "inside",
+                "thickness": 1,
+                "fill": "#D0D0E8"
+              },
+              "children": [
+                {
+                  "id": "open-step1-menuitem1",
+                  "type": "frame",
+                  "x": 8,
+                  "y": 8,
+                  "width": 184,
+                  "height": 30,
+                  "fill": "#6C5CE7",
+                  "cornerRadius": 6,
+                  "layout": "horizontal",
+                  "justifyContent": "space-between",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "id": "open-step1-menuitem1-label",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "Open Project",
+                      "fontSize": 13,
+                      "fill": "#FFFFFF",
+                      "fontWeight": "600"
+                    },
+                    {
+                      "id": "open-step1-menuitem1-shortcut",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "⌘O",
+                      "fontSize": 12,
+                      "fill": "#FFFFFF"
+                    }
+                  ]
+                },
+                {
+                  "id": "open-step1-menuitem2",
+                  "type": "frame",
+                  "x": 8,
+                  "y": 42,
+                  "width": 184,
+                  "height": 30,
+                  "cornerRadius": 6,
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "id": "open-step1-menuitem2-label",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "New Project",
+                      "fontSize": 13,
+                      "fill": "#555555"
+                    }
+                  ]
+                },
+                {
+                  "id": "open-step1-menuitem3",
+                  "type": "frame",
+                  "x": 8,
+                  "y": 76,
+                  "width": 184,
+                  "height": 30,
+                  "cornerRadius": 6,
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "id": "open-step1-menuitem3-label",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "Save",
+                      "fontSize": 13,
+                      "fill": "#555555"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "open-step2-card",
+          "name": "Step 2 Card",
+          "type": "frame",
+          "x": 660,
+          "y": 300,
+          "width": 540,
+          "height": 320,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "open-step2-circle",
+              "name": "Step 2 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "open-step2-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "2",
+                  "fontSize": 24,
+                  "fill": "#FFFFFF",
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "id": "open-step2-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "从最近项目打开",
+              "fontSize": 24,
+              "fill": "#1E1E2E",
+              "fontWeight": "700"
+            },
+            {
+              "id": "open-step2-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 300,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "打开 Pencil 后，在欢迎页面\n可以看到最近打开的项目列表，\n直接点击即可打开。",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "open-step2-recent-list",
+              "name": "Recent Projects List",
+              "type": "frame",
+              "x": 24,
+              "y": 210,
+              "width": 480,
+              "height": 80,
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "id": "open-step2-recent-item1",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": 480,
+                  "height": 22,
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "open-step2-recent-item1-icon",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "📄",
+                      "fontSize": 14,
+                      "fill": "#000000"
+                    },
+                    {
+                      "id": "open-step2-recent-item1-name",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "hedwig-starter.pen",
+                      "fontSize": 13,
+                      "fill": "#6C5CE7",
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "id": "open-step2-recent-item2",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": 480,
+                  "height": 22,
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "open-step2-recent-item2-icon",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "📄",
+                      "fontSize": 14,
+                      "fill": "#000000"
+                    },
+                    {
+                      "id": "open-step2-recent-item2-name",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "hedwig-ui.pen",
+                      "fontSize": 13,
+                      "fill": "#555555"
+                    }
+                  ]
+                },
+                {
+                  "id": "open-step2-recent-item3",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": 480,
+                  "height": 22,
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "id": "open-step2-recent-item3-icon",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "📄",
+                      "fontSize": 14,
+                      "fill": "#000000"
+                    },
+                    {
+                      "id": "open-step2-recent-item3-name",
+                      "type": "text",
+                      "x": 0,
+                      "y": 0,
+                      "width": "fit_content",
+                      "height": "fit_content",
+                      "textGrowth": "auto",
+                      "content": "my-project.pen",
+                      "fontSize": 13,
+                      "fill": "#555555"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "open-step3-card",
+          "name": "Step 3 Card",
+          "type": "frame",
+          "x": 100,
+          "y": 660,
+          "width": 540,
+          "height": 300,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "open-step3-circle",
+              "name": "Step 3 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "open-step3-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "3",
+                  "fontSize": 24,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "open-step3-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "通过终端打开",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#1E1E2E"
+            },
+            {
+              "id": "open-step3-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 300,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "在终端中使用命令行直接\n打开 .pen 设计文件：",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "open-step3-terminal",
+              "name": "Terminal Window",
+              "type": "frame",
+              "x": 24,
+              "y": 160,
+              "width": 490,
+              "height": 110,
+              "fill": "#1E1E2E",
+              "cornerRadius": 10,
+              "children": [
+                {
+                  "id": "open-step3-term-bar",
+                  "name": "Terminal Title Bar",
+                  "type": "frame",
+                  "x": 0,
+                  "y": 0,
+                  "width": 490,
+                  "height": 28,
+                  "fill": "#2D2D3F",
+                  "cornerRadius": [
+                    10,
+                    10,
+                    0,
+                    0
+                  ],
+                  "layout": "horizontal",
+                  "alignItems": "center",
+                  "gap": 6,
+                  "padding": [
+                    0,
+                    12
+                  ],
+                  "children": [
+                    {
+                      "id": "open-step3-dot1",
+                      "type": "frame",
+                      "x": 0,
+                      "y": 0,
+                      "width": 10,
+                      "height": 10,
+                      "cornerRadius": 5,
+                      "fill": "#FF5F56"
+                    },
+                    {
+                      "id": "open-step3-dot2",
+                      "type": "frame",
+                      "x": 0,
+                      "y": 0,
+                      "width": 10,
+                      "height": 10,
+                      "cornerRadius": 5,
+                      "fill": "#FFBD2E"
+                    },
+                    {
+                      "id": "open-step3-dot3",
+                      "type": "frame",
+                      "x": 0,
+                      "y": 0,
+                      "width": 10,
+                      "height": 10,
+                      "cornerRadius": 5,
+                      "fill": "#27C93F"
+                    }
+                  ]
+                },
+                {
+                  "id": "open-step3-cmd1",
+                  "type": "text",
+                  "x": 16,
+                  "y": 40,
+                  "width": 460,
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "$ cd ~/my-project",
+                  "fontSize": 13,
+                  "fontFamily": "monospace",
+                  "fill": "#A0A0B8"
+                },
+                {
+                  "id": "open-step3-cmd2",
+                  "type": "text",
+                  "x": 16,
+                  "y": 62,
+                  "width": 460,
+                  "height": "fit_content",
+                  "textGrowth": "fixed-width",
+                  "content": "$ pencil open design/hedwig-starter.pen",
+                  "fontSize": 13,
+                  "fontFamily": "monospace",
+                  "fill": "#27C93F"
+                },
+                {
+                  "id": "open-step3-cursor",
+                  "type": "text",
+                  "x": 16,
+                  "y": 84,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "▋",
+                  "fontSize": 13,
+                  "fontFamily": "monospace",
+                  "fill": "#6C5CE7"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "open-step4-card",
+          "name": "Step 4 Card",
+          "type": "frame",
+          "x": 660,
+          "y": 660,
+          "width": 540,
+          "height": 300,
+          "fill": "#F5F5FF",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#D0D0E8"
+          },
+          "children": [
+            {
+              "id": "open-step4-circle",
+              "name": "Step 4 Circle",
+              "type": "frame",
+              "x": 24,
+              "y": 24,
+              "width": 48,
+              "height": 48,
+              "cornerRadius": 24,
+              "fill": "#6C5CE7",
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "id": "open-step4-num",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "4",
+                  "fontSize": 24,
+                  "fontWeight": "700",
+                  "fill": "#FFFFFF",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "open-step4-title",
+              "type": "text",
+              "x": 84,
+              "y": 32,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "拖放文件打开",
+              "fontSize": 24,
+              "fontWeight": "700",
+              "fill": "#1E1E2E"
+            },
+            {
+              "id": "open-step4-desc",
+              "type": "text",
+              "x": 24,
+              "y": 88,
+              "width": 300,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "直接将 .pen 文件从访达\n（Finder）拖放到 Pencil\n应用窗口中即可打开。",
+              "fontSize": 16,
+              "fill": "#555555",
+              "lineHeight": 1.6
+            },
+            {
+              "id": "open-step4-file-icon",
+              "name": "File Icon",
+              "type": "frame",
+              "x": 60,
+              "y": 190,
+              "width": 80,
+              "height": 80,
+              "fill": "#FFFFFF",
+              "cornerRadius": 12,
+              "stroke": {
+                "align": "inside",
+                "thickness": 2,
+                "fill": "#D0D0E8"
+              },
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "gap": 4,
+              "children": [
+                {
+                  "id": "open-step4-file-emoji",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "📄",
+                  "fontSize": 28,
+                  "textAlign": "center"
+                },
+                {
+                  "id": "open-step4-file-ext",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": ".pen",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "fill": "#6C5CE7",
+                  "textAlign": "center"
+                }
+              ]
+            },
+            {
+              "id": "open-step4-arrow",
+              "type": "text",
+              "x": 170,
+              "y": 212,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "→→→",
+              "fontSize": 24,
+              "fill": "#6C5CE7"
+            },
+            {
+              "id": "open-step4-drop-target",
+              "name": "Drop Target",
+              "type": "frame",
+              "x": 300,
+              "y": 180,
+              "width": 200,
+              "height": 100,
+              "fill": "#FFFFFF",
+              "cornerRadius": 12,
+              "stroke": {
+                "align": "inside",
+                "thickness": 2,
+                "fill": "#6C5CE7",
+                "dashArray": [
+                  8,
+                  4
+                ]
+              },
+              "layout": "vertical",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "gap": 6,
+              "children": [
+                {
+                  "id": "open-step4-drop-icon",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "⬇️",
+                  "fontSize": 24,
+                  "textAlign": "center"
+                },
+                {
+                  "id": "open-step4-drop-text",
+                  "type": "text",
+                  "x": 0,
+                  "y": 0,
+                  "width": "fit_content",
+                  "height": "fit_content",
+                  "textGrowth": "auto",
+                  "content": "拖放到此处",
+                  "fontSize": 13,
+                  "fill": "#6C5CE7",
+                  "fontWeight": "500",
+                  "textAlign": "center"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "open-tips-section",
+          "name": "Tips Section",
+          "type": "frame",
+          "x": 100,
+          "y": 1000,
+          "width": 1100,
+          "height": 130,
+          "fill": "#FFF8E1",
+          "cornerRadius": 16,
+          "stroke": {
+            "align": "inside",
+            "thickness": 1,
+            "fill": "#FFE082"
+          },
+          "children": [
+            {
+              "id": "open-tips-icon",
+              "type": "text",
+              "x": 28,
+              "y": 24,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "💡",
+              "fontSize": 28
+            },
+            {
+              "id": "open-tips-title",
+              "type": "text",
+              "x": 68,
+              "y": 28,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "小贴士",
+              "fontSize": 20,
+              "fontWeight": "700",
+              "fill": "#F57F17"
+            },
+            {
+              "id": "open-tips-content",
+              "type": "text",
+              "x": 68,
+              "y": 64,
+              "width": 1000,
+              "height": "fit_content",
+              "textGrowth": "fixed-width",
+              "content": "• 确保 .pen 文件未被其他程序占用    • 如果项目包含 Git 仓库，Pencil 会自动识别版本控制    • 支持同时打开多个项目窗口",
+              "fontSize": 14,
+              "fill": "#795548",
+              "lineHeight": 1.8
+            }
+          ]
+        },
+        {
+          "id": "open-footer",
+          "name": "Footer",
+          "type": "frame",
+          "x": 100,
+          "y": 1150,
+          "width": 1100,
+          "height": 40,
+          "layout": "horizontal",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "id": "open-footer-text",
+              "type": "text",
+              "x": 0,
+              "y": 0,
+              "width": "fit_content",
+              "height": "fit_content",
+              "textGrowth": "auto",
+              "content": "Hedwig Design System · Pencil 指南 · © 2025",
+              "fontSize": 14,
+              "fill": "#AAAAAA",
+              "textAlign": "center"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

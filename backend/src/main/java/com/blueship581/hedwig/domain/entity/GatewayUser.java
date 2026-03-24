@@ -15,14 +15,14 @@ import java.time.Instant;
 @TableName("gateway_users")
 public class GatewayUser {
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
+  @TableId(type = IdType.AUTO)
+  private Long id;
 
-    private String username;
+  private String username;
 
-    private String passwordHash;
+  private String passwordHash;
 
-    @TableField(fill = FieldFill.INSERT)
-    @Builder.Default
-    private Instant createdAt = Instant.now();
+  @TableField(fill = FieldFill.INSERT)
+  @Builder.Default
+  private Instant createdAt = Instant.now();
 }

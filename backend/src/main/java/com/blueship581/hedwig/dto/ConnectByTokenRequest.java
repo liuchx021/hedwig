@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class ConnectByTokenRequest {
-    private VendorType vendorType;
-    private String accessToken;
+  private VendorType vendorType;
+  private String accessToken;
 }

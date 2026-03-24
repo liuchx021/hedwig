@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VendorLoginRequest {
-    // For token-based (Ottai / SiSensing): provide accessToken directly
-    private String accessToken;
-    // For username/password login (future extension)
-    private String username;
-    private String password;
+  // For token-based (Ottai / SiSensing): provide accessToken directly
+  private String accessToken;
+  // For username/password login (future extension)
+  private String username;
+  private String password;
 }

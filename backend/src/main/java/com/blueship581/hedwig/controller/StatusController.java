@@ -21,41 +21,42 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StatusController {
 
-    private final VendorConnectionMapper connectionMapper;
-    private final GlucoseReadingMapper readingMapper;
-    private final NightscoutTargetService targetService;
+  private final VendorConnectionMapper connectionMapper;
+  private final GlucoseReadingMapper readingMapper;
+  private final NightscoutTargetService targetService;
 
-    @GetMapping
-    public ResponseEntity<Map<String, Object>> status() {
-        long totalConnections = connectionMapper.selectCount(null);
-        long activeConnections = connectionMapper.selectCount(
-                Wrappers.lambdaQuery(VendorConnection.class)
-                        .ne(VendorConnection::getTokenStatus, TokenStatus.EXPIRED));
-        long expiringSoon = connectionMapper.selectCount(
-                Wrappers.lambdaQuery(VendorConnection.class)
-                        .eq(VendorConnection::getTokenStatus, TokenStatus.EXPIRING_SOON));
-        long totalReadings = readingMapper.selectCount(null);
-        long pendingSync = readingMapper.selectCount(
-                Wrappers.lambdaQuery(GlucoseReading.class)
-                        .eq(GlucoseReading::getPushedToNightscout, false));
+  @GetMapping
+  public ResponseEntity<Map<String, Object>> status() {
+    long totalConnections = connectionMapper.selectCount(null);
+    long activeConnections =
+        connectionMapper.selectCount(
+            Wrappers.lambdaQuery(VendorConnection.class)
+                .ne(VendorConnection::getTokenStatus, TokenStatus.EXPIRED));
+    long expiringSoon =
+        connectionMapper.selectCount(
+            Wrappers.lambdaQuery(VendorConnection.class)
+                .eq(VendorConnection::getTokenStatus, TokenStatus.EXPIRING_SOON));
+    long totalReadings = readingMapper.selectCount(null);
+    long pendingSync =
+        readingMapper.selectCount(
+            Wrappers.lambdaQuery(GlucoseReading.class)
+                .eq(GlucoseReading::getPushedToNightscout, false));
 
-        int activeTargets = targetService.getAllActiveTargets().size();
+    int activeTargets = targetService.getAllActiveTargets().size();
 
-        return ResponseEntity.ok(Map.of(
-                "timestamp", Instant.now().toString(),
-                "status", "UP",
-                "connections", Map.of(
-                        "total", totalConnections,
-                        "active", activeConnections,
-                        "expiringSoon", expiringSoon
-                ),
-                "readings", Map.of(
-                        "total", totalReadings,
-                        "pendingNightscoutSync", pendingSync
-                ),
-                "nightscout", Map.of(
-                        "activeTargets", activeTargets
-                )
-        ));
-    }
+    return ResponseEntity.ok(
+        Map.of(
+            "timestamp", Instant.now().toString(),
+            "status", "UP",
+            "connections",
+                Map.of(
+                    "total", totalConnections,
+                    "active", activeConnections,
+                    "expiringSoon", expiringSoon),
+            "readings",
+                Map.of(
+                    "total", totalReadings,
+                    "pendingNightscoutSync", pendingSync),
+            "nightscout", Map.of("activeTargets", activeTargets)));
+  }
 }

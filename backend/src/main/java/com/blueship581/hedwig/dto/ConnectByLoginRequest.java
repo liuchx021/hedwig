@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ConnectByLoginRequest {
-    private VendorType vendorType;
-    private String username;
-    private String password;
+  private VendorType vendorType;
+  private String username;
+  private String password;
 }

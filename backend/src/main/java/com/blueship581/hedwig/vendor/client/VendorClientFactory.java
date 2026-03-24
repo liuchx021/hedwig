@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class VendorClientFactory {
 
-    private final OttaiClient ottaiClient;
-    private final SiSensingClient siSensingClient;
+  private final OttaiClient ottaiClient;
+  private final SiSensingClient siSensingClient;
 
-    public VendorClient getClient(VendorType vendorType) {
-        return switch (vendorType) {
-            case OTTAI -> ottaiClient;
-            case SISENSING -> siSensingClient;
-        };
-    }
+  public VendorClient getClient(VendorType vendorType) {
+    return switch (vendorType) {
+      case OTTAI -> ottaiClient;
+      case SISENSING -> siSensingClient;
+    };
+  }
 }

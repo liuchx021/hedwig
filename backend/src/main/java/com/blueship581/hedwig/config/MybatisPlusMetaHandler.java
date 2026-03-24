@@ -9,13 +9,13 @@ import java.time.Instant;
 @Component
 public class MybatisPlusMetaHandler implements MetaObjectHandler {
 
-    @Override
-    public void insertFill(MetaObject metaObject) {
-        this.strictInsertFill(metaObject, "createdAt", Instant.class, Instant.now());
-    }
+  @Override
+  public void insertFill(MetaObject metaObject) {
+    this.strictInsertFill(metaObject, "createdAt", Instant.class, Instant.now());
+  }
 
-    @Override
-    public void updateFill(MetaObject metaObject) {
-        // No update-fill fields currently
-    }
+  @Override
+  public void updateFill(MetaObject metaObject) {
+    // No update-fill fields currently
+  }
 }

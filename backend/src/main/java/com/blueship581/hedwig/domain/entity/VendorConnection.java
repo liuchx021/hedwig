@@ -19,21 +19,20 @@ import java.time.Instant;
 @TableName("vendor_connections")
 public class VendorConnection {
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
+  @TableId(type = IdType.AUTO)
+  private Long id;
 
-    private Long gatewayUserId;
+  private Long gatewayUserId;
 
-    private VendorType vendorType;
+  private VendorType vendorType;
 
-    private String accessToken;
+  private String accessToken;
 
-    private String vendorUserId;
+  private String vendorUserId;
 
-    private Instant tokenExpiresAt;
+  private Instant tokenExpiresAt;
 
-    @Builder.Default
-    private TokenStatus tokenStatus = TokenStatus.ACTIVE;
+  @Builder.Default private TokenStatus tokenStatus = TokenStatus.ACTIVE;
 
-    private Instant lastSyncedAt;
+  private Instant lastSyncedAt;
 }

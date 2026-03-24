@@ -8,17 +8,17 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class LatestSubjectDataCache {
 
-    private final ConcurrentHashMap<Long, LatestSubjectData> cache = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<Long, LatestSubjectData> cache = new ConcurrentHashMap<>();
 
-    public Optional<LatestSubjectData> get(Long subjectId) {
-        return Optional.ofNullable(cache.get(subjectId));
-    }
+  public Optional<LatestSubjectData> get(Long subjectId) {
+    return Optional.ofNullable(cache.get(subjectId));
+  }
 
-    public void put(LatestSubjectData data) {
-        cache.put(data.getSubjectId(), data);
-    }
+  public void put(LatestSubjectData data) {
+    cache.put(data.getSubjectId(), data);
+  }
 
-    public void evict(Long subjectId) {
-        cache.remove(subjectId);
-    }
+  public void evict(Long subjectId) {
+    cache.remove(subjectId);
+  }
 }

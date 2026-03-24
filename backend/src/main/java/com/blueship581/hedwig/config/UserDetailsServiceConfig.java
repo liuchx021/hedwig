@@ -17,24 +17,26 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserDetailsServiceConfig {
 
-    private final GatewayUserMapper gatewayUserMapper;
+  private final GatewayUserMapper gatewayUserMapper;
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> Optional.ofNullable(
-                        gatewayUserMapper.selectOne(
-                                Wrappers.lambdaQuery(GatewayUser.class)
-                                        .eq(GatewayUser::getUsername, username)))
-                .map(user -> org.springframework.security.core.userdetails.User.builder()
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return username ->
+        Optional.ofNullable(
+                gatewayUserMapper.selectOne(
+                    Wrappers.lambdaQuery(GatewayUser.class).eq(GatewayUser::getUsername, username)))
+            .map(
+                user ->
+                    org.springframework.security.core.userdetails.User.builder()
                         .username(user.getUsername())
                         .password(user.getPasswordHash())
                         .roles("USER")
                         .build())
-                .orElseThrow(() -> new UsernameNotFoundException("用户不存在：" + username));
-    }
+            .orElseThrow(() -> new UsernameNotFoundException("用户不存在：" + username));
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

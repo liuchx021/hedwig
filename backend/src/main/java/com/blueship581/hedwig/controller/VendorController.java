@@ -17,40 +17,36 @@ import java.util.List;
 @RequiredArgsConstructor
 public class VendorController {
 
-    private final VendorConnectionService vendorConnectionService;
+  private final VendorConnectionService vendorConnectionService;
 
-    @GetMapping("/connections")
-    public ResponseEntity<List<VendorConnectionDto>> getConnections(
-            @AuthenticationPrincipal UserDetails user) {
-        return ResponseEntity.ok(vendorConnectionService.getConnections(user.getUsername()));
-    }
+  @GetMapping("/connections")
+  public ResponseEntity<List<VendorConnectionDto>> getConnections(
+      @AuthenticationPrincipal UserDetails user) {
+    return ResponseEntity.ok(vendorConnectionService.getConnections(user.getUsername()));
+  }
 
-    @PostMapping("/connections/token")
-    public ResponseEntity<VendorConnectionDto> connectByToken(
-            @AuthenticationPrincipal UserDetails user,
-            @RequestBody ConnectByTokenRequest request) {
-        return ResponseEntity.ok(vendorConnectionService.connectByToken(user.getUsername(), request));
-    }
+  @PostMapping("/connections/token")
+  public ResponseEntity<VendorConnectionDto> connectByToken(
+      @AuthenticationPrincipal UserDetails user, @RequestBody ConnectByTokenRequest request) {
+    return ResponseEntity.ok(vendorConnectionService.connectByToken(user.getUsername(), request));
+  }
 
-    @PostMapping("/connections/login")
-    public ResponseEntity<VendorConnectionDto> connectByLogin(
-            @AuthenticationPrincipal UserDetails user,
-            @RequestBody ConnectByLoginRequest request) {
-        return ResponseEntity.ok(vendorConnectionService.connectByLogin(user.getUsername(), request));
-    }
+  @PostMapping("/connections/login")
+  public ResponseEntity<VendorConnectionDto> connectByLogin(
+      @AuthenticationPrincipal UserDetails user, @RequestBody ConnectByLoginRequest request) {
+    return ResponseEntity.ok(vendorConnectionService.connectByLogin(user.getUsername(), request));
+  }
 
-    @PostMapping("/connections/{id}/refresh")
-    public ResponseEntity<VendorConnectionDto> refreshToken(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable Long id) {
-        return ResponseEntity.ok(vendorConnectionService.refreshToken(user.getUsername(), id));
-    }
+  @PostMapping("/connections/{id}/refresh")
+  public ResponseEntity<VendorConnectionDto> refreshToken(
+      @AuthenticationPrincipal UserDetails user, @PathVariable Long id) {
+    return ResponseEntity.ok(vendorConnectionService.refreshToken(user.getUsername(), id));
+  }
 
-    @DeleteMapping("/connections/{id}")
-    public ResponseEntity<Void> disconnect(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable Long id) {
-        vendorConnectionService.disconnect(user.getUsername(), id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/connections/{id}")
+  public ResponseEntity<Void> disconnect(
+      @AuthenticationPrincipal UserDetails user, @PathVariable Long id) {
+    vendorConnectionService.disconnect(user.getUsername(), id);
+    return ResponseEntity.noContent().build();
+  }
 }

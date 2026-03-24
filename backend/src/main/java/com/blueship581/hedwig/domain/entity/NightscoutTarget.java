@@ -17,34 +17,32 @@ import java.time.Instant;
 @TableName("nightscout_targets")
 public class NightscoutTarget {
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
+  @TableId(type = IdType.AUTO)
+  private Long id;
 
-    private Long gatewayUserId;
+  private Long gatewayUserId;
 
-    private Long monitoredSubjectId;
+  private Long monitoredSubjectId;
 
-    private String name;
+  private String name;
 
-    private String baseUrl;
+  private String baseUrl;
 
-    private String apiSecretSha1;
+  private String apiSecretSha1;
 
-    private String apiSecretHint;
+  private String apiSecretHint;
 
-    @Builder.Default
-    private String status = "ACTIVE";
+  @Builder.Default private String status = "ACTIVE";
 
-    @Builder.Default
-    private Boolean isDefault = false;
+  @Builder.Default private Boolean isDefault = false;
 
-    private Instant lastPushAt;
+  private Instant lastPushAt;
 
-    private Instant lastSuccessAt;
+  private Instant lastSuccessAt;
 
-    private String lastErrorMessage;
+  private String lastErrorMessage;
 
-    private Instant createdAt;
+  private Instant createdAt;
 
-    private Instant updatedAt;
+  private Instant updatedAt;
 }

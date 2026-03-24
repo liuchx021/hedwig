@@ -17,19 +17,18 @@ import java.time.Instant;
 @TableName("monitored_subjects")
 public class MonitoredSubject {
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
+  @TableId(type = IdType.AUTO)
+  private Long id;
 
-    private Long vendorConnectionId;
+  private Long vendorConnectionId;
 
-    private String vendorSubjectId;
+  private String vendorSubjectId;
 
-    private String vendorDeviceId;
+  private String vendorDeviceId;
 
-    private String displayName;
+  private String displayName;
 
-    @Builder.Default
-    private Boolean isActive = true;
+  @Builder.Default private Boolean isActive = true;
 
-    private Instant sensorExpiresAt;
+  private Instant sensorExpiresAt;
 }

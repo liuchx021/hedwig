@@ -13,12 +13,12 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GlucoseReadingDto {
-    private Long id;
-    private Long monitoredSubjectId;
-    private Double glucoseMmol;
-    private Double glucoseMgdl;
-    private TrendDirection trendDirection;
-    private Double delta;
-    private Instant readingTime;
-    private Boolean pushedToNightscout;
+  private Long id;
+  private Long monitoredSubjectId;
+  private Double glucoseMmol;
+  private Double glucoseMgdl;
+  private TrendDirection trendDirection;
+  private Double delta;
+  private Instant readingTime;
+  private Boolean pushedToNightscout;
 }

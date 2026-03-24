@@ -2,6 +2,14 @@ when:
   branch: develop
   event: push
 
+variables:
+  - &deploy_host "100.109.92.68"
+  - &deploy_port "22"
+  - &deploy_user "deploy"
+  - &app_dir "/opt/hedwig"
+  - &health_url "http://localhost:8080/health"
+  - &health_timeout "60"
+
 steps:
   - name: verify-release
     image: alpine:3
@@ -11,46 +19,17 @@ steps:
 
   - name: deploy
     image: alpine:3
+    depends_on:
+      - verify-release
     environment:
       SSH_KEY:
         from_secret: ssh_key
+      DEPLOY_HOST: *deploy_host
+      DEPLOY_PORT: *deploy_port
+      DEPLOY_USER: *deploy_user
+      APP_DIR: *app_dir
+      HEALTH_URL: *health_url
+      HEALTH_TIMEOUT: *health_timeout
     commands:
-      - apk add --no-cache openssh-client coreutils
-      - test -s build/hedwig.jar
-      - sha256sum build/hedwig.jar
-      - mkdir -p ~/.ssh
-      - echo "$SSH_KEY" | base64 -d > ~/.ssh/id_ed25519
-      - chmod 600 ~/.ssh/id_ed25519
-      - ssh-keyscan -p 22 100.109.92.68 >> ~/.ssh/known_hosts 2>/dev/null
-      - scp -o StrictHostKeyChecking=no build/hedwig.jar deploy@100.109.92.68:/opt/hedwig/app.jar.new
-      - |
-        ssh deploy@100.109.92.68 '
-          set -e
-          cd /opt/hedwig
-          sha256sum app.jar.new
-          SYSTEMCTL_PATH="$(command -v systemctl)"
-          if [[ -z "$SYSTEMCTL_PATH" ]]; then
-            echo "ERROR: systemctl not found on server." >&2
-            exit 1
-          fi
-          SUDO_CHECK_ERR="$(mktemp)"
-          if ! sudo -n "$SYSTEMCTL_PATH" is-active hedwig >/dev/null 2>"$SUDO_CHECK_ERR"; then
-            if grep -Eq "password is required|a terminal is required|not allowed to execute" "$SUDO_CHECK_ERR"; then
-              echo "ERROR: deploy user needs passwordless sudo for $SYSTEMCTL_PATH." >&2
-              echo "Run on server: sudo visudo -f /etc/sudoers.d/hedwig-deploy" >&2
-              echo "Then add: deploy ALL=(root) NOPASSWD: $SYSTEMCTL_PATH restart hedwig, $SYSTEMCTL_PATH is-active hedwig" >&2
-              rm -f "$SUDO_CHECK_ERR"
-              exit 1
-            fi
-          fi
-          rm -f "$SUDO_CHECK_ERR"
-          if [[ ! -f app.jar ]]; then
-            echo "ERROR: current app.jar missing; refusing to replace blindly." >&2
-            exit 1
-          fi
-          cp app.jar app.jar.bak
-          mv app.jar.new app.jar
-          sudo -n "$SYSTEMCTL_PATH" restart hedwig
-          sudo -n "$SYSTEMCTL_PATH" is-active hedwig
-          sha256sum app.jar
-        '
+      - apk add --no-cache openssh-client coreutils bash
+      - bash ./scripts/ci-deploy.sh

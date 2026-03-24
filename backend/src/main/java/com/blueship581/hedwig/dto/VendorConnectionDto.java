@@ -14,13 +14,13 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VendorConnectionDto {
-    private Long id;
-    private VendorType vendorType;
-    private String vendorUserId;
-    private Long primarySubjectId;
-    private String primarySubjectName;
-    private TokenStatus tokenStatus;
-    private Instant tokenExpiresAt;
-    private Instant lastSyncedAt;
-    private Instant sensorExpiresAt;
+  private Long id;
+  private VendorType vendorType;
+  private String vendorUserId;
+  private Long primarySubjectId;
+  private String primarySubjectName;
+  private TokenStatus tokenStatus;
+  private Instant tokenExpiresAt;
+  private Instant lastSyncedAt;
+  private Instant sensorExpiresAt;
 }

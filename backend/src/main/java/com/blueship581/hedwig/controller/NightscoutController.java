@@ -17,59 +17,55 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NightscoutController {
 
-    private final NightscoutTargetService targetService;
-    private final NightscoutSyncService nightscoutSyncService;
+  private final NightscoutTargetService targetService;
+  private final NightscoutSyncService nightscoutSyncService;
 
-    // ==================== Nightscout 目标管理 ====================
+  // ==================== Nightscout 目标管理 ====================
 
-    @GetMapping("/targets")
-    public ApiResult<List<NightscoutTargetDto>> listTargets(
-            @AuthenticationPrincipal UserDetails user) {
-        return ApiResult.ok(targetService.listTargets(user.getUsername()));
-    }
+  @GetMapping("/targets")
+  public ApiResult<List<NightscoutTargetDto>> listTargets(
+      @AuthenticationPrincipal UserDetails user) {
+    return ApiResult.ok(targetService.listTargets(user.getUsername()));
+  }
 
-    @GetMapping("/targets/{id}")
-    public ApiResult<NightscoutTargetDto> getTarget(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable Long id) {
-        return ApiResult.ok(targetService.getTarget(user.getUsername(), id));
-    }
+  @GetMapping("/targets/{id}")
+  public ApiResult<NightscoutTargetDto> getTarget(
+      @AuthenticationPrincipal UserDetails user, @PathVariable Long id) {
+    return ApiResult.ok(targetService.getTarget(user.getUsername(), id));
+  }
 
-    @PostMapping("/targets")
-    public ApiResult<NightscoutTargetDto> createTarget(
-            @AuthenticationPrincipal UserDetails user,
-            @RequestBody NightscoutTargetRequest request) {
-        return ApiResult.ok(targetService.createTarget(user.getUsername(), request), "创建成功");
-    }
+  @PostMapping("/targets")
+  public ApiResult<NightscoutTargetDto> createTarget(
+      @AuthenticationPrincipal UserDetails user, @RequestBody NightscoutTargetRequest request) {
+    return ApiResult.ok(targetService.createTarget(user.getUsername(), request), "创建成功");
+  }
 
-    @PutMapping("/targets/{id}")
-    public ApiResult<NightscoutTargetDto> updateTarget(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable Long id,
-            @RequestBody NightscoutTargetRequest request) {
-        return ApiResult.ok(targetService.updateTarget(user.getUsername(), id, request), "更新成功");
-    }
+  @PutMapping("/targets/{id}")
+  public ApiResult<NightscoutTargetDto> updateTarget(
+      @AuthenticationPrincipal UserDetails user,
+      @PathVariable Long id,
+      @RequestBody NightscoutTargetRequest request) {
+    return ApiResult.ok(targetService.updateTarget(user.getUsername(), id, request), "更新成功");
+  }
 
-    @DeleteMapping("/targets/{id}")
-    public ApiResult<Void> deleteTarget(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable Long id) {
-        targetService.deleteTarget(user.getUsername(), id);
-        return ApiResult.ok();
-    }
+  @DeleteMapping("/targets/{id}")
+  public ApiResult<Void> deleteTarget(
+      @AuthenticationPrincipal UserDetails user, @PathVariable Long id) {
+    targetService.deleteTarget(user.getUsername(), id);
+    return ApiResult.ok();
+  }
 
-    @PostMapping("/targets/{id}/toggle")
-    public ApiResult<NightscoutTargetDto> toggleStatus(
-            @AuthenticationPrincipal UserDetails user,
-            @PathVariable Long id) {
-        return ApiResult.ok(targetService.toggleStatus(user.getUsername(), id));
-    }
+  @PostMapping("/targets/{id}/toggle")
+  public ApiResult<NightscoutTargetDto> toggleStatus(
+      @AuthenticationPrincipal UserDetails user, @PathVariable Long id) {
+    return ApiResult.ok(targetService.toggleStatus(user.getUsername(), id));
+  }
 
-    // ==================== 同步操作 ====================
+  // ==================== 同步操作 ====================
 
-    @PostMapping("/sync")
-    public ApiResult<Integer> sync(@AuthenticationPrincipal UserDetails user) {
-        int pushed = nightscoutSyncService.syncPendingReadings();
-        return ApiResult.ok(pushed, pushed > 0 ? "同步完成" : "当前没有待同步的血糖数据");
-    }
+  @PostMapping("/sync")
+  public ApiResult<Integer> sync(@AuthenticationPrincipal UserDetails user) {
+    int pushed = nightscoutSyncService.syncPendingReadings();
+    return ApiResult.ok(pushed, pushed > 0 ? "同步完成" : "当前没有待同步的血糖数据");
+  }
 }

@@ -12,16 +12,16 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NightscoutTargetDto {
-    private Long id;
-    private String name;
-    private String baseUrl;
-    private String apiSecretHint;
-    private String status;
-    private Boolean isDefault;
-    private Long monitoredSubjectId;
-    private String monitoredSubjectName;
-    private Instant lastPushAt;
-    private Instant lastSuccessAt;
-    private String lastErrorMessage;
-    private Instant createdAt;
+  private Long id;
+  private String name;
+  private String baseUrl;
+  private String apiSecretHint;
+  private String status;
+  private Boolean isDefault;
+  private Long monitoredSubjectId;
+  private String monitoredSubjectName;
+  private Instant lastPushAt;
+  private Instant lastSuccessAt;
+  private String lastErrorMessage;
+  private Instant createdAt;
 }

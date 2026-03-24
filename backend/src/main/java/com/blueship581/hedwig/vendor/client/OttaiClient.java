@@ -28,16 +28,16 @@ public class OttaiClient implements VendorClient {
 
     private static final String BASE_URL = "https://api.ottai.com";
 
-    // arrowType integer -> TrendDirection mapping per API spec
-    private static final Map<Integer, TrendDirection> ARROW_MAP = Map.of(
-            1, TrendDirection.DOUBLE_UP,
-            2, TrendDirection.SINGLE_UP,
-            3, TrendDirection.FLAT,
-            4, TrendDirection.SINGLE_DOWN,
-            5, TrendDirection.DOUBLE_DOWN,
-            6, TrendDirection.FORTY_FIVE_UP,
-            7, TrendDirection.FORTY_FIVE_DOWN
-    );
+  // arrowType integer -> TrendDirection mapping per API spec
+  private static final Map<Integer, TrendDirection> ARROW_MAP =
+      Map.of(
+          1, TrendDirection.DOUBLE_UP,
+          2, TrendDirection.SINGLE_UP,
+          3, TrendDirection.FLAT,
+          4, TrendDirection.SINGLE_DOWN,
+          5, TrendDirection.DOUBLE_DOWN,
+          6, TrendDirection.FORTY_FIVE_UP,
+          7, TrendDirection.FORTY_FIVE_DOWN);
 
     private final WebClient webClient;
 

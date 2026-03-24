@@ -7,36 +7,33 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import java.util.Locale;
 
 public enum VendorType {
-    OTTAI("OTTAI"),
-    SISENSING("SISENSING");
+  OTTAI("OTTAI"),
+  SISENSING("SISENSING");
 
-    @EnumValue
-    @JSONField(value = true)
-    private final String jsonValue;
+  @EnumValue
+  @JSONField(value = true)
+  private final String jsonValue;
 
-    VendorType(String jsonValue) {
-        this.jsonValue = jsonValue;
+  VendorType(String jsonValue) {
+    this.jsonValue = jsonValue;
+  }
+
+  @JSONCreator
+  public static VendorType fromValue(String value) {
+    if (value == null || value.isBlank()) {
+      throw new IllegalArgumentException("厂商类型不能为空");
     }
 
-    @JSONCreator
-    public static VendorType fromValue(String value) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException("厂商类型不能为空");
-        }
+    String normalized = value.trim().replace('-', '_').replace(' ', '_').toUpperCase(Locale.ROOT);
 
-        String normalized = value.trim()
-                .replace('-', '_')
-                .replace(' ', '_')
-                .toUpperCase(Locale.ROOT);
+    return switch (normalized) {
+      case "OTTAI" -> OTTAI;
+      case "SISENSING", "SI_SENSING" -> SISENSING;
+      default -> throw new IllegalArgumentException("不支持的厂商类型：" + value);
+    };
+  }
 
-        return switch (normalized) {
-            case "OTTAI" -> OTTAI;
-            case "SISENSING", "SI_SENSING" -> SISENSING;
-            default -> throw new IllegalArgumentException("不支持的厂商类型：" + value);
-        };
-    }
-
-    public String toJsonValue() {
-        return jsonValue;
-    }
+  public String toJsonValue() {
+    return jsonValue;
+  }
 }

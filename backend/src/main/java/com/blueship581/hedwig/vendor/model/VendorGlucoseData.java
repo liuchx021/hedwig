@@ -13,7 +13,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VendorGlucoseData {
-    private Double glucoseMmol;
-    private Instant readingTime;
-    private TrendDirection trendDirection;
+  private Double glucoseMmol;
+  private Instant readingTime;
+  private TrendDirection trendDirection;
 }

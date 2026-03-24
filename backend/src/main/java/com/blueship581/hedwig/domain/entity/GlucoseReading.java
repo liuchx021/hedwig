@@ -20,24 +20,22 @@ import java.time.Instant;
 @TableName("glucose_readings")
 public class GlucoseReading {
 
-    @TableId(type = IdType.AUTO)
-    private Long id;
+  @TableId(type = IdType.AUTO)
+  private Long id;
 
-    private Long monitoredSubjectId;
+  private Long monitoredSubjectId;
 
-    private Double glucoseMmol;
+  private Double glucoseMmol;
 
-    private Double glucoseMgdl;
+  private Double glucoseMgdl;
 
-    @Builder.Default
-    private TrendDirection trendDirection = TrendDirection.NONE;
+  @Builder.Default private TrendDirection trendDirection = TrendDirection.NONE;
 
-    private Instant readingTime;
+  private Instant readingTime;
 
-    @Builder.Default
-    private Boolean pushedToNightscout = false;
+  @Builder.Default private Boolean pushedToNightscout = false;
 
-    @TableField(fill = FieldFill.INSERT)
-    @Builder.Default
-    private Instant createdAt = Instant.now();
+  @TableField(fill = FieldFill.INSERT)
+  @Builder.Default
+  private Instant createdAt = Instant.now();
 }
