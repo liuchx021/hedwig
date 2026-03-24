@@ -3,7 +3,7 @@ import { Skeleton, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { getLatest } from '../api/glucose';
-import { glucoseColor, glucoseClass, trendArrow, parseTimestampMs } from '../utils/time';
+import { glucoseColor, glucoseClass, trendArrow, trendColor, parseTimestampMs } from '../utils/time';
 import type { GlucoseReading } from '../types';
 
 const { Text } = Typography;
@@ -115,7 +115,7 @@ const GlucoseHero: React.FC<GlucoseHeroProps> = ({ subjectId, subjectName }) => 
         <span className="dashboard-hero-number" style={{ color }}>
           {reading.glucoseMmol.toFixed(1)}
         </span>
-        <span className="dashboard-hero-trend" style={{ color }}>
+        <span className="dashboard-hero-trend" style={{ color: trendColor(reading.trendDirection) }}>
           {trendArrow(reading.trendDirection)}
         </span>
         <span className="dashboard-hero-unit">mmol/L</span>

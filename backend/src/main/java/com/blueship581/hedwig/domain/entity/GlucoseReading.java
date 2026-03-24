@@ -1,6 +1,8 @@
 package com.blueship581.hedwig.domain.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.blueship581.hedwig.domain.enums.TrendDirection;
@@ -34,4 +36,8 @@ public class GlucoseReading {
 
     @Builder.Default
     private Boolean pushedToNightscout = false;
+
+    @TableField(fill = FieldFill.INSERT)
+    @Builder.Default
+    private Instant createdAt = Instant.now();
 }

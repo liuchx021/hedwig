@@ -531,16 +531,24 @@ public class SiSensingClient implements VendorClient {
     }
 
     /**
-     * SiSensing trend mapping: 2=DoubleUp, 1=SingleUp, 0=Flat,
-     * -1=FortyFiveDown, -2=DoubleDown.
+     * SiSensing trend mapping (extended):
+     *   3=DoubleUp, 2=SingleUp, 1=FortyFiveUp, 0=Flat,
+     *  -1=FortyFiveDown, -2=SingleDown, -3=DoubleDown.
+     *
+     * Note: the exact vendor values are not fully documented; we map
+     * conservatively and use NONE for unrecognized values so that the
+     * self-calculated trend (GlucoseTrendCalculator) takes precedence.
      */
     private TrendDirection mapSiSensingTrend(int s) {
         return switch (s) {
-            case 2 -> TrendDirection.DOUBLE_UP;
-            case 1 -> TrendDirection.SINGLE_UP;
+            case 3 -> TrendDirection.DOUBLE_UP;
+            case 2 -> TrendDirection.SINGLE_UP;
+            case 1 -> TrendDirection.FORTY_FIVE_UP;
+            case 0 -> TrendDirection.FLAT;
             case -1 -> TrendDirection.FORTY_FIVE_DOWN;
-            case -2 -> TrendDirection.DOUBLE_DOWN;
-            default -> TrendDirection.FLAT;
+            case -2 -> TrendDirection.SINGLE_DOWN;
+            case -3 -> TrendDirection.DOUBLE_DOWN;
+            default -> TrendDirection.NONE;
         };
     }
 }

@@ -332,7 +332,9 @@ public class GlucoseService {
                 .glucoseMmol(current.getGlucoseMmol())
                 .glucoseMgdl(current.getGlucoseMgdl())
                 .trendDirection(GlucoseTrendCalculator.calculate(
-                        current.getGlucoseMmol(), prevMmol))
+                        current.getGlucoseMmol(), prevMmol,
+                        current.getReadingTime(),
+                        previous == null ? null : previous.getReadingTime()))
                 .delta(delta)
                 .readingTime(current.getReadingTime())
                 .pushedToNightscout(current.getPushedToNightscout())

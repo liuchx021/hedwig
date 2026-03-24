@@ -44,6 +44,9 @@ public class GlucosePollingScheduler {
     private final VendorClientFactory vendorClientFactory;
     private final PollingStateManager pollingState;
 
+    private final java.util.concurrent.atomic.AtomicLong lastNightscoutSyncSec =
+            new java.util.concurrent.atomic.AtomicLong(0);
+
     // ════════════════════════════════════════════════════════════════════════
     // Fast clock — 2s tick, actual requests gated by PollingStateManager
     // ════════════════════════════════════════════════════════════════════════
@@ -77,10 +80,15 @@ public class GlucosePollingScheduler {
             pollConnection(connection);
         }
 
-        // Push any pending readings to Nightscout (cheap local check)
-        int synced = nightscoutSyncService.syncPendingReadings();
-        if (synced > 0) {
-            log.info("Nightscout sync: pushed {} readings", synced);
+        // Push pending readings to Nightscout — throttled to once every 10 seconds
+        // to avoid hammering the DB with queries when there's nothing to push.
+        long nowSec = Instant.now().getEpochSecond();
+        if (nowSec - lastNightscoutSyncSec.get() >= 10) {
+            lastNightscoutSyncSec.set(nowSec);
+            int synced = nightscoutSyncService.syncPendingReadings();
+            if (synced > 0) {
+                log.info("Nightscout sync: pushed {} readings", synced);
+            }
         }
     }
 

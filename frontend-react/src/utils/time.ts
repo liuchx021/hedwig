@@ -44,6 +44,29 @@ export function trendArrow(trend?: string): string {
   }
 }
 
+/**
+ * Returns a color based on trend direction (not glucose value).
+ * Up trends → red (rising is concerning), Down trends → orange, Flat/None → secondary.
+ */
+export function trendColor(trend?: string): string {
+  switch (trend) {
+    case 'DOUBLE_UP':
+    case 'SINGLE_UP':
+      return '#e05c5c';
+    case 'FORTY_FIVE_UP':
+      return '#e0a84b';
+    case 'FLAT':
+      return 'var(--color-text-secondary, #999)';
+    case 'FORTY_FIVE_DOWN':
+      return '#e0a84b';
+    case 'SINGLE_DOWN':
+    case 'DOUBLE_DOWN':
+      return '#e05c5c';
+    default:
+      return 'var(--color-text-secondary, #999)';
+  }
+}
+
 export function glucoseClass(mmol: number): 'low' | 'high' | 'normal' {
   if (mmol < 3.9) return 'low';
   if (mmol > 10.0) return 'high';

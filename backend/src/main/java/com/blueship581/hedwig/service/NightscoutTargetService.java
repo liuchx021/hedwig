@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.blueship581.hedwig.domain.entity.GatewayUser;
 import com.blueship581.hedwig.domain.entity.MonitoredSubject;
 import com.blueship581.hedwig.domain.entity.NightscoutTarget;
+import com.blueship581.hedwig.domain.entity.VendorConnection;
 import com.blueship581.hedwig.domain.mapper.GatewayUserMapper;
 import com.blueship581.hedwig.domain.mapper.MonitoredSubjectMapper;
 import com.blueship581.hedwig.domain.mapper.NightscoutTargetMapper;
+import com.blueship581.hedwig.domain.mapper.VendorConnectionMapper;
 import com.blueship581.hedwig.dto.NightscoutTargetDto;
 import com.blueship581.hedwig.dto.NightscoutTargetRequest;
 import com.blueship581.hedwig.exception.AuthException;
@@ -34,6 +36,7 @@ public class NightscoutTargetService {
     private final NightscoutTargetMapper targetMapper;
     private final GatewayUserMapper userMapper;
     private final MonitoredSubjectMapper subjectMapper;
+    private final VendorConnectionMapper connectionMapper;
 
     public List<NightscoutTargetDto> listTargets(String username) {
         GatewayUser user = findUser(username);
@@ -227,7 +230,16 @@ public class NightscoutTargetService {
             throw new ResourceNotFoundException(ErrorCode.SUBJECT_NOT_FOUND,
                     "监测对象不存在：" + subjectId);
         }
-        // 通过 vendor_connection 关联验证归属（简化：这里不做深层校验，只检查存在性）
+        // Verify ownership: subject → vendorConnection → gatewayUserId
+        if (subject.getVendorConnectionId() == null) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED,
+                    "该监测对象未关联任何设备连接，无法绑定");
+        }
+        VendorConnection connection = connectionMapper.selectById(subject.getVendorConnectionId());
+        if (connection == null || !connection.getGatewayUserId().equals(gatewayUserId)) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED,
+                    "没有权限操作该监测对象：" + subjectId);
+        }
     }
 
     private void clearDefault(Long gatewayUserId) {

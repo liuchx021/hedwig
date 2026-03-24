@@ -183,7 +183,7 @@ class SiSensingClientTest {
 
         assertEquals(1, readings.size());
         assertEquals(6.4, readings.get(0).getGlucoseMmol());
-        assertEquals(TrendDirection.SINGLE_UP, readings.get(0).getTrendDirection());
+        assertEquals(TrendDirection.FORTY_FIVE_UP, readings.get(0).getTrendDirection());
     }
 
     @Test
@@ -217,7 +217,7 @@ class SiSensingClientTest {
         VendorGlucoseData reading = client.getRealtimeFromFollowList("plain-token-value").get("follow-1");
 
         assertEquals(6.8, reading.getGlucoseMmol());
-        assertEquals(TrendDirection.DOUBLE_DOWN, reading.getTrendDirection());
+        assertEquals(TrendDirection.SINGLE_DOWN, reading.getTrendDirection());
     }
 
     @Test

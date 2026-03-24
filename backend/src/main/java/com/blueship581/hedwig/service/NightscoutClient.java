@@ -24,6 +24,8 @@ import java.util.List;
 @Component
 public class NightscoutClient {
 
+    private static final double MMOL_TO_MGDL_FACTOR = 18.0182;
+
     @Value("${TZ:Asia/Shanghai}")
     private String timezone;
 
@@ -86,8 +88,23 @@ public class NightscoutClient {
         }
     }
 
+    /**
+     * Build an SgvEntry from mmol/L glucose value.
+     * Converts mmol to mg/dL internally.
+     */
     public SgvEntry toSgvEntry(double glucoseMmol, Instant readingTime, String direction, String device) {
-        int mgdl = (int) Math.round(glucoseMmol * 18.0182);
+        int mgdl = (int) Math.round(glucoseMmol * MMOL_TO_MGDL_FACTOR);
+        return buildSgvEntry(mgdl, readingTime, direction, device);
+    }
+
+    /**
+     * Build an SgvEntry from a pre-computed mg/dL value (avoids redundant conversion).
+     */
+    public SgvEntry toSgvEntryFromMgdl(double glucoseMgdl, Instant readingTime, String direction, String device) {
+        return buildSgvEntry((int) Math.round(glucoseMgdl), readingTime, direction, device);
+    }
+
+    private SgvEntry buildSgvEntry(int mgdl, Instant readingTime, String direction, String device) {
         String dateStr = DateTimeFormatter.ISO_OFFSET_DATE_TIME
                 .withZone(ZoneId.of(timezone))
                 .format(readingTime);
