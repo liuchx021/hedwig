@@ -25,6 +25,7 @@ HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-60}"
 LOCAL_JAR="build/hedwig.jar"
 REMOTE_TARGET="${DEPLOY_USER}@${DEPLOY_HOST}"
 SSH_OPTS="-o StrictHostKeyChecking=yes -o ConnectTimeout=10 -p ${DEPLOY_PORT}"
+SCP_OPTS="-o StrictHostKeyChecking=yes -o ConnectTimeout=10 -P ${DEPLOY_PORT}"
 
 # ── pre-flight: local artifact check ─────────────────────────
 if [[ ! -s "${LOCAL_JAR}" ]]; then
@@ -64,7 +65,7 @@ setup_ssh
 
 # ── upload artifact ───────────────────────────────────────────
 echo "==> Uploading ${LOCAL_JAR} -> ${REMOTE_TARGET}:${APP_DIR}/app.jar.new"
-scp ${SSH_OPTS} "${LOCAL_JAR}" "${REMOTE_TARGET}:${APP_DIR}/app.jar.new"
+scp ${SCP_OPTS} "${LOCAL_JAR}" "${REMOTE_TARGET}:${APP_DIR}/app.jar.new"
 
 # ── remote deploy with health check & auto-rollback ───────────
 echo "==> Running remote deploy ..."
