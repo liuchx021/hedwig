@@ -30,3 +30,5 @@ release/
 
 # Local docs
 DEV-WORKFLOW.md
+design/*
+.gitignore
