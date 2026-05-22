@@ -2,10 +2,10 @@ name: Hedwig CGM Sync
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop, main ]
   schedule:
-    - cron: '*/5 * * * *' # 每5分钟云端自动跑一次
-  workflow_dispatch: # 允许我们手动点击运行
+    - cron: '*/5 * * * *' # 每 5 分钟自动运行
+  workflow_dispatch: # 允许手动点击运行
 
 jobs:
   sync:
@@ -14,21 +14,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Set up Go
+      uses: actions/setup-go@v4
       with:
-        python-packages: 'requests'
+        go-version: '1.21' # 使用稳定的 Go 版本
 
-    - name: Run Hedwig Script
+    - name: Run Hedwig Backend
       env:
         CGM_USER: ${{ secrets.CGM_USER }}
         CGM_PWD: ${{ secrets.CGM_PWD }}
         BARK_KEY: ${{ secrets.BARK_KEY }}
       run: |
-        if [ -f "main.py" ]; then
-          python main.py
-        elif [ -f "index.py" ]; then
-          python index.py
-        else
-          python hedwig.py
-        fi
+        cd backend
+        go run main.go
