@@ -24,6 +24,7 @@ jobs:
         CGM_USER: ${{ secrets.CGM_USER }}
         CGM_PWD: ${{ secrets.CGM_PWD }}
         BARK_KEY: ${{ secrets.BARK_KEY }}
-      run: |
-        cd backend
-        go run main.go
+      run: 
+       cd backend
+       go run cmd/hedwig/main.go
+
