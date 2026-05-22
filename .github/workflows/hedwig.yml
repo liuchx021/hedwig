@@ -17,14 +17,14 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
-        go-version: '1.21' # 使用稳定的 Go 版本
+        go-version: '1.21' 
+        cache-dependency-path: backend/go.sum # ⚠️ 精确指定依赖文件位置
 
     - name: Run Hedwig Backend
       env:
         CGM_USER: ${{ secrets.CGM_USER }}
         CGM_PWD: ${{ secrets.CGM_PWD }}
         BARK_KEY: ${{ secrets.BARK_KEY }}
-      run: 
-       cd backend
-       go run cmd/hedwig/main.go
-
+      run: |
+        cd backend
+        go run cmd/hedwig/main.go
